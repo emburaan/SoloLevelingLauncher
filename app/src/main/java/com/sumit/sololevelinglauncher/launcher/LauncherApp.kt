@@ -4,4 +4,6 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class SoloLevelingLauncherApp : Application()
+class SoloLevelingLauncherApp : Application() {
+
+}

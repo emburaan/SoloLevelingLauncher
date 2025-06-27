@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sumit.sololevelinglauncher.launcher.AppInfo
+import com.sumit.sololevelinglauncher.ui.model.AppInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,16 +26,19 @@ class AppsViewModel @Inject constructor(
     private fun loadApps() {
         viewModelScope.launch {
             val packageManager = context.packageManager
-            val intent = Intent(Intent.ACTION_MAIN, null).apply {
-                addCategory(Intent.CATEGORY_LAUNCHER)
-            }
-            val resolveInfos = packageManager.queryIntentActivities(intent, 0)
-            val appList = resolveInfos.asSequence()
-                .map {
+            val mainIntent = Intent(Intent.ACTION_MAIN, null)
+            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            val resolvedApps = packageManager.queryIntentActivities(mainIntent, 0)
+            val appList = resolvedApps.asSequence()
+                .mapNotNull { resolveInfo ->
+                    val label =
+                        resolveInfo.loadLabel(packageManager)?.toString() ?: return@mapNotNull null
+                    val icon = resolveInfo.loadIcon(packageManager)
+                    val packageName = resolveInfo.activityInfo.packageName
                     AppInfo(
-                        label = it.loadLabel(packageManager).toString(),
-                        packageName = it.activityInfo.packageName,
-                        icon = it.loadIcon(packageManager)
+                        label = label,
+                        packageName = packageName,
+                        icon = icon
                     )
                 }
                 .sortedBy { it.label.lowercase() }
