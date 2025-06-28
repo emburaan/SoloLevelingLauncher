@@ -31,8 +31,7 @@ class AppsViewModel @Inject constructor(
             val resolvedApps = packageManager.queryIntentActivities(mainIntent, 0)
             val appList = resolvedApps.asSequence()
                 .mapNotNull { resolveInfo ->
-                    val label =
-                        resolveInfo.loadLabel(packageManager)?.toString() ?: return@mapNotNull null
+                    val label = resolveInfo.loadLabel(packageManager).toString()
                     val icon = resolveInfo.loadIcon(packageManager)
                     val packageName = resolveInfo.activityInfo.packageName
                     AppInfo(
