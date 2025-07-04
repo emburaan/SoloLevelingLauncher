@@ -1,4 +1,4 @@
-package com.sumit.sololevelinglauncher.launcher.homescreen.component
+package com.sumit.sololevelinglauncher.ui.presentation.homescreen.component
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -28,7 +28,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun NeumorphicAnalogClock() {
+fun NeumorphicAnalogClock(modifier: Modifier) {
     var calendar by remember { mutableStateOf(Calendar.getInstance()) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -37,7 +37,7 @@ fun NeumorphicAnalogClock() {
         }
     }
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(180.dp)
             .shadow(
                 16.dp,
