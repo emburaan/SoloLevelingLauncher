@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.sumit.sololevelinglauncher.R
+import com.sumit.sololevelinglauncher.ui.presentation.searchscreen.component.MainActivityCompose
 import com.sumit.sololevelinglauncher.ui.model.AppInfo
 
 @Preview
@@ -18,5 +19,5 @@ fun HomeScreenMainActivityComposePreview() {
             appsList.add(AppInfo("App1$i", "com.example.app$i", it))
         }
     }
-    MainActivityBodyCompose(appsList)
+    MainActivityCompose()
 }

@@ -1,4 +1,4 @@
-package com.sumit.sololevelinglauncher.launcher.homescreen.component
+package com.sumit.sololevelinglauncher.ui.presentation.searchscreen.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.sumit.sololevelinglauncher.ui.model.AppInfo
@@ -19,19 +20,22 @@ import com.sumit.sololevelinglauncher.ui.theme.SLBackground
 @Composable
 fun AppGrid(apps: List<AppInfo>) {
     val context = LocalContext.current
-    Column(modifier = Modifier.fillMaxSize().background(SLBackground)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Black)) {
         Box(modifier = Modifier.weight(1f)) {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
+                columns = GridCells.Fixed(1),
                 modifier = Modifier
                     .fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
-                horizontalArrangement = Arrangement.spacedBy(18.dp)
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 items(apps) { app ->
                     AppIcon(app = app, onClick = {
-                        val launchIntent = context.packageManager.getLaunchIntentForPackage(app.packageName)
+                        val launchIntent =
+                            context.packageManager.getLaunchIntentForPackage(app.packageName)
                         if (launchIntent != null) {
                             context.startActivity(launchIntent)
                         }
