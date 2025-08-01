@@ -1,4 +1,4 @@
-package com.sumit.sololevelinglauncher.ui.presentation
+package com.sumit.launcher.ui.presentation.searchscreen
 
 import android.content.Context
 import android.content.Intent
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AppsViewModel @Inject constructor(
+class SearchScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _apps = MutableStateFlow<List<AppInfo>>(emptyList())

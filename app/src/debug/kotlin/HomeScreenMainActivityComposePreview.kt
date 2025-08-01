@@ -1,4 +1,4 @@
-package com.sumit.launcher.homescreen.component
+package component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
