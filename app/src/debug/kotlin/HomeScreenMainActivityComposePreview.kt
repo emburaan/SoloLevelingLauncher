@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.sumit.launcher.R
-import com.sumit.sololevelinglauncher.ui.presentation.searchscreen.component.MainActivityCompose
+import com.sumit.sololevelinglauncher.launcher.presentation.main.component.MainActivityCompose
 import com.sumit.launcher.ui.model.AppInfo
 
 @Preview

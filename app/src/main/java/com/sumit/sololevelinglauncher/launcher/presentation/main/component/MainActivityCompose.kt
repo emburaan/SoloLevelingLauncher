@@ -1,4 +1,4 @@
-package com.sumit.sololevelinglauncher.ui.presentation.searchscreen.component
+package com.sumit.sololevelinglauncher.launcher.presentation.main.component
 
 import android.content.Intent
 import androidx.compose.foundation.layout.*

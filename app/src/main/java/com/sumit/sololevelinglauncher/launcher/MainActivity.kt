@@ -1,13 +1,11 @@
 package com.sumit.sololevelinglauncher.launcher
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.platform.LocalContext
-import com.sumit.sololevelinglauncher.ui.presentation.searchscreen.component.MainActivityCompose
+import com.sumit.sololevelinglauncher.launcher.presentation.main.component.MainActivityCompose
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
