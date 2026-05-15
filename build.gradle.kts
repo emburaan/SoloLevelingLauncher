@@ -5,4 +5,5 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.kapt) apply false // Add this line for kapt support
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.ksp) apply false
 }

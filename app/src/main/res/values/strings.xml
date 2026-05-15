@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Solo Leveling Launcher</string>
+    <string name="widget_description">Today\'s Tasks — add and delete tasks from your home screen.</string>
+    <string name="widget_title">Today\'s Tasks</string>
+    <string name="widget_empty">No tasks yet — tap + to add one</string>
+    <string name="widget_add_content_desc">Add task</string>
+    <string name="widget_delete_content_desc">Delete task</string>
+    <string name="add_task_title">New Task</string>
+    <string name="add_task_hint">Task name</string>
+    <string name="action_add">Add</string>
+    <string name="action_cancel">Cancel</string>
 </resources>
