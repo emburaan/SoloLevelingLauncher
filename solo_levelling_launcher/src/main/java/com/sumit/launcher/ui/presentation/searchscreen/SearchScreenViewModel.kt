@@ -89,11 +89,13 @@ class SearchScreenViewModel @Inject constructor(
             val mainIntent = Intent(Intent.ACTION_MAIN, null)
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             val resolvedApps = packageManager.queryIntentActivities(mainIntent, 0)
+            val ownPackage = context.packageName
             val appList = resolvedApps.asSequence()
                 .mapNotNull { resolveInfo ->
+                    val packageName = resolveInfo.activityInfo.packageName
+                    if (packageName == ownPackage) return@mapNotNull null
                     val label = resolveInfo.loadLabel(packageManager).toString()
                     val icon = resolveInfo.loadIcon(packageManager)
-                    val packageName = resolveInfo.activityInfo.packageName
                     AppInfo(
                         label = label,
                         packageName = packageName,

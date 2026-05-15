@@ -3,7 +3,8 @@ package com.sumit.launcher.ui.presentation.homescreen.component
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -51,7 +52,6 @@ fun NeumorphicAnalogClock(modifier: Modifier) {
 
     Box(
         modifier = modifier
-            .size(180.dp)
             .shadow(
                 elevation = 18.dp,
                 shape = CircleShape,
@@ -62,7 +62,7 @@ fun NeumorphicAnalogClock(modifier: Modifier) {
             .background(face, CircleShape),
         contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.size(160.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize().padding(10.dp)) {
             val center = Offset(size.width / 2f, size.height / 2f)
             val radius = size.minDimension / 2f
 
