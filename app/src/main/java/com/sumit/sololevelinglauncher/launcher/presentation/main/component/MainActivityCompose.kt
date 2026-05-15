@@ -1,8 +1,16 @@
 package com.sumit.sololevelinglauncher.launcher.presentation.main.component
 
+import android.app.role.RoleManager
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
-import androidx.compose.foundation.layout.Arrangement
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,20 +42,24 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.sumit.launcher.ui.presentation.homescreen.UsageUiState
 import com.sumit.launcher.ui.presentation.homescreen.UsageViewModel
 import com.sumit.launcher.ui.presentation.homescreen.component.HomeScreen
-import com.sumit.launcher.ui.presentation.searchscreen.SearchScreenViewModel
 import com.sumit.launcher.ui.presentation.searchscreen.component.AppListWithSearchScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainActivityCompose() {
-    val searchScreenViewModel: SearchScreenViewModel = hiltViewModel()
     val usageViewModel: UsageViewModel = hiltViewModel()
-    val apps by searchScreenViewModel.apps.collectAsState()
     val usageState by usageViewModel.state.collectAsState()
     val pagerState = rememberPagerState(0, pageCount = { 2 })
     val context = LocalContext.current
-    var showSheet by remember { mutableStateOf(true) }
+    var showSheet by remember { mutableStateOf(!isDefaultLauncher(context)) }
     var dismissedUsageDialog by rememberSaveable { mutableStateOf(false) }
+    var dismissedBatteryDialog by rememberSaveable { mutableStateOf(false) }
+
+    val roleLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { showSheet = !isDefaultLauncher(context) }
+
+    BackHandler(enabled = true) { /* Back is disabled on the launcher screens. */ }
 
     if (!showSheet
         && !dismissedUsageDialog
@@ -84,6 +96,44 @@ fun MainActivityCompose() {
         )
     }
 
+    if (!showSheet
+        && dismissedUsageDialog
+        && !dismissedBatteryDialog
+        && !isIgnoringBatteryOptimizations(context)
+    ) {
+        AlertDialog(
+            onDismissRequest = { dismissedBatteryDialog = true },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = RoundedCornerShape(24.dp),
+            title = { Text("Keep launcher responsive") },
+            text = {
+                Text(
+                    "Android may pause the launcher in the background. Allow Solo Leveling " +
+                        "Launcher to ignore battery optimisations so it stays fast and the " +
+                        "clock and task list stay current."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    onClick = {
+                        context.startActivity(
+                            Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                                .setData(Uri.parse("package:${context.packageName}"))
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                        dismissedBatteryDialog = true
+                    }
+                ) { Text("Allow") }
+            },
+            dismissButton = {
+                TextButton(onClick = { dismissedBatteryDialog = true }) { Text("Not now") }
+            }
+        )
+    }
+
     if (showSheet) {
         ModalBottomSheet(
             onDismissRequest = { showSheet = false },
@@ -104,10 +154,22 @@ fun MainActivityCompose() {
                 )
                 Button(
                     onClick = {
-                        val intent = Intent(Intent.ACTION_MAIN)
-                            .addCategory(Intent.CATEGORY_HOME)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(intent)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            val roleManager = context.getSystemService(RoleManager::class.java)
+                            if (roleManager != null
+                                && roleManager.isRoleAvailable(RoleManager.ROLE_HOME)
+                                && !roleManager.isRoleHeld(RoleManager.ROLE_HOME)
+                            ) {
+                                roleLauncher.launch(
+                                    roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME)
+                                )
+                                return@Button
+                            }
+                        }
+                        context.startActivity(
+                            Intent(Settings.ACTION_HOME_SETTINGS)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
                         showSheet = false
                     },
                     shape = RoundedCornerShape(14.dp),
@@ -129,8 +191,22 @@ fun MainActivityCompose() {
         HorizontalPager(state = pagerState) { page ->
             when (page) {
                 0 -> HomeScreen()
-                1 -> AppListWithSearchScreen(apps)
+                1 -> AppListWithSearchScreen()
             }
         }
     }
+}
+
+private fun isDefaultLauncher(context: Context): Boolean {
+    val resolveInfo = context.packageManager.resolveActivity(
+        Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),
+        PackageManager.MATCH_DEFAULT_ONLY
+    )
+    return resolveInfo?.activityInfo?.packageName == context.packageName
+}
+
+private fun isIgnoringBatteryOptimizations(context: Context): Boolean {
+    val powerManager = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+        ?: return true
+    return powerManager.isIgnoringBatteryOptimizations(context.packageName)
 }

@@ -19,8 +19,14 @@ class TaskListViewModel @Inject constructor(
     val tasks: StateFlow<List<TaskEntity>> = repository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    fun addTask(text: String) {
+    /**
+     * Attempts to add a task. Returns false when the priority limit ([MAX_TASKS]) is reached
+     * so callers can react with UI (e.g. a snackbar).
+     */
+    fun addTask(text: String): Boolean {
+        if (tasks.value.size >= MAX_TASKS) return false
         viewModelScope.launch { repository.addTask(text) }
+        return true
     }
 
     fun deleteTask(taskId: Int) {
@@ -29,5 +35,9 @@ class TaskListViewModel @Inject constructor(
 
     fun toggleTask(task: TaskEntity) {
         viewModelScope.launch { repository.toggleTask(task) }
+    }
+
+    companion object {
+        const val MAX_TASKS = 5
     }
 }

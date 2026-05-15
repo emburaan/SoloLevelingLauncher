@@ -1,7 +1,8 @@
 package com.sumit.launcher.ui.presentation.searchscreen.component
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,13 +24,18 @@ import androidx.core.graphics.drawable.toBitmap
 import com.sumit.launcher.ui.model.AppInfo
 import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AppIcon(app: AppInfo, onClick: () -> Unit) {
+fun AppIcon(
+    app: AppInfo,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onClick() },
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val bitmap = remember(app.icon) { app.icon.toBitmap(96, 96).asImageBitmap() }

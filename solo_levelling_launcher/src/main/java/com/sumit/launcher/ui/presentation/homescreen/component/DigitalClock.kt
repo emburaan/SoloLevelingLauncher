@@ -18,10 +18,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.sumit.sololevelinglauncher.ui.theme.SLAccentPurple
 import com.sumit.sololevelinglauncher.ui.theme.SLTheme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import java.util.Calendar
 import kotlin.math.PI
 import kotlin.math.cos
@@ -30,10 +34,13 @@ import kotlin.math.sin
 @Composable
 fun NeumorphicAnalogClock(modifier: Modifier) {
     var calendar by remember { mutableStateOf(Calendar.getInstance()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            calendar = Calendar.getInstance()
-            delay(1000)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (isActive) {
+                calendar = Calendar.getInstance()
+                delay(1000)
+            }
         }
     }
 

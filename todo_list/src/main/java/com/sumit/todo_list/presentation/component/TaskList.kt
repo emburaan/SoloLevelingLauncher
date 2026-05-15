@@ -45,7 +45,8 @@ private val DeleteRed = Color(0xFFFF6B6B)
 
 @Composable
 fun TaskListSection(
-    viewModel: TaskListViewModel = hiltViewModel()
+    viewModel: TaskListViewModel = hiltViewModel(),
+    onMaxReached: () -> Unit = {}
 ) {
     val tasks by viewModel.tasks.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -53,7 +54,8 @@ fun TaskListSection(
     if (showAddDialog) {
         AddTaskDialog(
             onConfirm = { text ->
-                viewModel.addTask(text)
+                val added = viewModel.addTask(text)
+                if (!added) onMaxReached()
                 showAddDialog = false
             },
             onDismiss = { showAddDialog = false }
@@ -92,7 +94,13 @@ fun TaskListSection(
                     .size(32.dp)
                     .clip(CircleShape)
                     .background(Brush.linearGradient(listOf(AccentPurple, AccentBlue)))
-                    .clickable { showAddDialog = true },
+                    .clickable {
+                        if (tasks.size >= TaskListViewModel.MAX_TASKS) {
+                            onMaxReached()
+                        } else {
+                            showAddDialog = true
+                        }
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "+", color = Color.White, fontSize = 20.sp)

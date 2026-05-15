@@ -109,4 +109,61 @@ class UsageStatsRepository @Inject constructor(
             )
         }
     }
+
+    /**
+     * Returns today's foreground time per package, in minutes. Uses the same FG/BG event
+     * pairing as [getLastSevenDays] so concurrently-recorded packages aren't double-counted.
+     */
+    fun getTodayUsagePerPackage(): Map<String, Int> {
+        if (!hasUsageAccess()) return emptyMap()
+
+        val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+            ?: return emptyMap()
+
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val todayStart = cal.timeInMillis
+        val now = System.currentTimeMillis()
+
+        val events = runCatching { usm.queryEvents(todayStart, now) }.getOrNull()
+            ?: return emptyMap()
+        val ev = UsageEvents.Event()
+        var fgPackage: String? = null
+        var fgStart: Long = 0L
+        val msByPackage = HashMap<String, Long>()
+
+        fun addUsage(pkg: String, rawStart: Long, rawEnd: Long) {
+            if (rawEnd <= rawStart) return
+            val s = max(rawStart, todayStart)
+            val e = min(rawEnd, now)
+            if (e > s) msByPackage.merge(pkg, e - s) { a, b -> a + b }
+        }
+
+        @Suppress("DEPRECATION")
+        while (events.hasNextEvent()) {
+            events.getNextEvent(ev)
+            when (ev.eventType) {
+                UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+                    val open = fgPackage
+                    if (open != null) addUsage(open, fgStart, ev.timeStamp)
+                    fgPackage = ev.packageName
+                    fgStart = ev.timeStamp
+                }
+                UsageEvents.Event.MOVE_TO_BACKGROUND -> {
+                    if (fgPackage == ev.packageName) {
+                        addUsage(ev.packageName, fgStart, ev.timeStamp)
+                        fgPackage = null
+                    }
+                }
+            }
+        }
+        val stillOpen = fgPackage
+        if (stillOpen != null) addUsage(stillOpen, fgStart, now)
+
+        return msByPackage.mapValues { (it.value / 60_000L).toInt() }
+    }
 }

@@ -19,6 +19,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,16 +31,37 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sumit.launcher.ui.model.AppInfo
+import com.sumit.launcher.ui.presentation.searchscreen.LaunchEffect
+import com.sumit.launcher.ui.presentation.searchscreen.SearchScreenViewModel
 
 @Composable
-fun AppListWithSearchScreen(apps: List<AppInfo>) {
+fun AppListWithSearchScreen(
+    viewModel: SearchScreenViewModel = hiltViewModel()
+) {
+    val apps by viewModel.apps.collectAsState()
+    val focusState by viewModel.focusState.collectAsState()
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+
+    var prompt by remember { mutableStateOf<LaunchEffect.FocusPrompt?>(null) }
+    var settingsApp by remember { mutableStateOf<AppInfo?>(null) }
+
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is LaunchEffect.FocusPrompt -> prompt = effect
+                is LaunchEffect.OpenSettings -> settingsApp = effect.app
+            }
+        }
+    }
+
     val filteredApps = if (searchQuery.text.isBlank()) {
         apps
     } else {
         apps.filter { it.label.contains(searchQuery.text, ignoreCase = true) }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -93,6 +116,37 @@ fun AppListWithSearchScreen(apps: List<AppInfo>) {
                 .fillMaxHeight()
         )
         Spacer(modifier = Modifier.height(16.dp))
-        AppGrid(apps = filteredApps)
+        AppGrid(
+            apps = filteredApps,
+            onAppClicked = viewModel::onAppClicked,
+            onAppLongPressed = viewModel::onAppLongPressed
+        )
+    }
+
+    prompt?.let { effect ->
+        FocusPromptDialog(
+            appLabel = effect.app.label,
+            countdownSeconds = effect.countdownSeconds,
+            usedMinutes = effect.usedMinutes,
+            limitMinutes = effect.limitMinutes,
+            onConfirm = {
+                viewModel.confirmLaunch(effect.app.packageName)
+                prompt = null
+            },
+            onDismiss = { prompt = null }
+        )
+    }
+
+    settingsApp?.let { app ->
+        AppFocusSettingsSheet(
+            app = app,
+            entry = focusState.entryFor(app.packageName),
+            onSave = { requirePrompt, dailyLimitMinutes ->
+                viewModel.setRequirePrompt(app.packageName, requirePrompt)
+                viewModel.setDailyLimit(app.packageName, dailyLimitMinutes)
+                settingsApp = null
+            },
+            onDismiss = { settingsApp = null }
+        )
     }
 }

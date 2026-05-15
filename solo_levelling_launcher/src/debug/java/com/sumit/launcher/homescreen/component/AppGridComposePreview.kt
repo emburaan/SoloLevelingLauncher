@@ -19,5 +19,9 @@ fun AppGridComposePreview() {
             appsList.add(AppInfo("App1$i", "com.example.app$i", it))
         }
     }
-    AppGrid(appsList)
+    AppGrid(
+        apps = appsList,
+        onAppClicked = {},
+        onAppLongPressed = {}
+    )
 }

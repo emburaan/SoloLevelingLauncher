@@ -10,14 +10,16 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.sumit.launcher.ui.model.AppInfo
 import com.sumit.launcher.ui.presentation.homescreen.component.AppBarIndex
 
 @Composable
-fun AppGrid(apps: List<AppInfo>) {
-    val context = LocalContext.current
+fun AppGrid(
+    apps: List<AppInfo>,
+    onAppClicked: (AppInfo) -> Unit,
+    onAppLongPressed: (AppInfo) -> Unit
+) {
     val gridState = rememberLazyGridState()
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
@@ -28,13 +30,11 @@ fun AppGrid(apps: List<AppInfo>) {
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             items(apps) { app ->
-                AppIcon(app = app, onClick = {
-                    val launchIntent =
-                        context.packageManager.getLaunchIntentForPackage(app.packageName)
-                    if (launchIntent != null) {
-                        context.startActivity(launchIntent)
-                    }
-                })
+                AppIcon(
+                    app = app,
+                    onClick = { onAppClicked(app) },
+                    onLongClick = { onAppLongPressed(app) }
+                )
             }
         }
         AppBarIndex(apps, lazyListState = gridState, this)

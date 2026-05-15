@@ -1,0 +1,10 @@
+<resources>
+    <string-array name="task_limit_motivational_messages">
+        <item>Five quests at a time — conquer them before unlocking more.</item>
+        <item>Priority is power. Focus on the five that matter.</item>
+        <item>Discipline is choosing what to leave out. Stay at five.</item>
+        <item>Master your current trials before seeking new ones.</item>
+        <item>The hunter focuses. The prey scatters. Finish your five.</item>
+        <item>Don\'t dilute your effort. Five priorities. No more.</item>
+    </string-array>
+</resources>
