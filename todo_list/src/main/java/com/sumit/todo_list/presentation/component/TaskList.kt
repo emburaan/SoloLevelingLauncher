@@ -1,6 +1,7 @@
 package com.sumit.todo_list.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.sumit.todo_list.presentation.TaskListViewModel
 
 private val AccentPurple = Color(0xFF6C63FF)
+private val AccentBlue = Color(0xFF42A5F5)
 private val DeleteRed = Color(0xFFFF6B6B)
 
 @Composable
@@ -57,20 +60,21 @@ fun TaskListSection(
         )
     }
 
+    val shape = RoundedCornerShape(22.dp)
     Column(
         modifier = Modifier
-            .fillMaxWidth(0.95f)
-            .shadow(8.dp, shape = MaterialTheme.shapes.medium)
-            .clip(MaterialTheme.shapes.medium)
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Black.copy(alpha = 0.8f),
-                        Color.Black.copy(alpha = 0.6f)
-                    )
-                )
+            .fillMaxWidth(0.94f)
+            .shadow(
+                elevation = 14.dp,
+                shape = shape,
+                ambientColor = Color.Black,
+                spotColor = Color.Black,
+                clip = false
             )
-            .padding(18.dp),
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f), shape)
+            .padding(horizontal = 18.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.Start
     ) {
         Row(
@@ -80,22 +84,18 @@ fun TaskListSection(
         ) {
             Text(
                 text = "Today's Tasks",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium
             )
             Box(
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(32.dp)
                     .clip(CircleShape)
-                    .background(AccentPurple)
+                    .background(Brush.linearGradient(listOf(AccentPurple, AccentBlue)))
                     .clickable { showAddDialog = true },
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "+",
-                    color = Color.White,
-                    fontSize = 20.sp
-                )
+                Text(text = "+", color = Color.White, fontSize = 20.sp)
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
@@ -103,7 +103,7 @@ fun TaskListSection(
         if (tasks.isEmpty()) {
             Text(
                 text = "No tasks yet — tap + to add one",
-                color = Color.White.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 6.dp)
             )
@@ -120,17 +120,21 @@ fun TaskListSection(
                         onClick = { viewModel.toggleTask(task) },
                         colors = RadioButtonDefaults.colors(
                             selectedColor = AccentPurple,
-                            unselectedColor = Color.White,
-                            disabledSelectedColor = Color.Gray,
-                            disabledUnselectedColor = Color.LightGray
+                            unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                         modifier = Modifier.size(24.dp)
                     )
                     Text(
                         text = task.text,
-                        color = if (task.isChecked) Color.White.copy(alpha = 0.5f) else Color.White,
+                        color = if (task.isChecked)
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        else
+                            MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge.copy(
-                            textDecoration = if (task.isChecked) TextDecoration.LineThrough else TextDecoration.None
+                            textDecoration = if (task.isChecked)
+                                TextDecoration.LineThrough
+                            else
+                                TextDecoration.None
                         ),
                         modifier = Modifier
                             .weight(1f)
@@ -144,11 +148,7 @@ fun TaskListSection(
                             .clickable { viewModel.deleteTask(task.id) },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "×",
-                            color = DeleteRed,
-                            fontSize = 20.sp
-                        )
+                        Text("×", color = DeleteRed, fontSize = 20.sp)
                     }
                 }
             }
@@ -164,6 +164,8 @@ private fun AddTaskDialog(
     var text by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = RoundedCornerShape(22.dp),
         title = { Text("New Task") },
         text = {
             OutlinedTextField(
@@ -175,9 +177,7 @@ private fun AddTaskDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = {
-                    if (text.isNotBlank()) onConfirm(text) else onDismiss()
-                }
+                onClick = { if (text.isNotBlank()) onConfirm(text) else onDismiss() }
             ) { Text("Add") }
         },
         dismissButton = {

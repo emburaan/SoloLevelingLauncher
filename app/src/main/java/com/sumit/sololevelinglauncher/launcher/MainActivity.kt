@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.MaterialTheme
 import com.sumit.sololevelinglauncher.launcher.presentation.main.component.MainActivityCompose
+import com.sumit.sololevelinglauncher.ui.theme.SoloLevelingLauncherTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MaterialTheme {
+            SoloLevelingLauncherTheme {
                 MainActivityCompose()
             }
         }

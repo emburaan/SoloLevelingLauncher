@@ -3,15 +3,21 @@ package com.sumit.launcher.ui.presentation.searchscreen.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -36,7 +42,14 @@ fun AppListWithSearchScreen(apps: List<AppInfo>) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.surface
+                    )
+                )
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(50.dp))
@@ -44,28 +57,40 @@ fun AppListWithSearchScreen(apps: List<AppInfo>) {
             value = searchQuery,
             onValueChange = { searchQuery = it },
             singleLine = true,
-            textStyle = TextStyle(color = Color.Gray),
+            shape = RoundedCornerShape(18.dp),
+            placeholder = {
+                Text("Search apps", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            },
+            textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                cursorColor = MaterialTheme.colorScheme.primary
+            ),
             trailingIcon = {
                 if (searchQuery.text.isNotEmpty()) {
-                    IconButton(onClick = {
-                        searchQuery = TextFieldValue("")
-                    }) {
+                    IconButton(onClick = { searchQuery = TextFieldValue("") }) {
                         Icon(
                             imageVector = Icons.Filled.Close,
-                            contentDescription = "Clear"
+                            contentDescription = "Clear",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 } else {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = "Search",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             },
             modifier = Modifier
-                .padding(all = 0.dp)
-                .height(50.dp)
-                .fillMaxSize(0.9f)
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .height(56.dp)
+                .fillMaxHeight()
         )
         Spacer(modifier = Modifier.height(16.dp))
         AppGrid(apps = filteredApps)

@@ -6,56 +6,79 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.sumit.sololevelinglauncher.ui.theme.SLText
+import com.sumit.launcher.data.usage.DayUsage
+import com.sumit.sololevelinglauncher.ui.theme.SLAccentBlue
+import com.sumit.sololevelinglauncher.ui.theme.SLAccentPurple
+import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
 
 @Composable
-fun UsageBarChart(usageData: List<Int>, modifier: Modifier = Modifier) {
-    val maxUsage = (usageData.maxOrNull() ?: 1).toFloat()
-    val days = listOf("S", "M", "T", "W", "T", "F", "S")
-    val gradient = Brush.horizontalGradient(
-        colors = listOf(Color(0xFF6C63FF), Color(0xFF42A5F5))
-    )
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+fun UsageBarChart(usageData: List<DayUsage>, modifier: Modifier = Modifier) {
+    val maxMinutes = (usageData.maxOfOrNull { it.minutes } ?: 1).coerceAtLeast(1).toFloat()
+    val gradient = Brush.horizontalGradient(listOf(SLAccentPurple, SLAccentBlue))
+    Column(
+        modifier = modifier
+            .neumorphicSurface(
+                shape = RoundedCornerShape(20.dp),
+                elevation = 12.dp,
+                color = MaterialTheme.colorScheme.surfaceContainer
+            )
+            .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(1f),
-            horizontalAlignment = Alignment.Start
-        ) {
-            usageData.forEachIndexed { i, usage ->
-                val barWidthRatio = if (maxUsage == 0f) 0f else usage / maxUsage
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Text(days[i], color = SLText, modifier = Modifier.width(16.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .height(4.dp)
-                            .width((barWidthRatio * 60).dp + 8.dp)
-                            .background(
-                                brush = gradient,
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                    )
-                }
+        Text(
+            text = "Last 7 days",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        usageData.forEach { day ->
+            val barRatio = day.minutes / maxMinutes
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier.padding(vertical = 3.dp)
+            ) {
+                Text(
+                    day.label,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.width(14.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .height(6.dp)
+                        .width((barRatio * 64).dp + 6.dp)
+                        .background(gradient, RoundedCornerShape(3.dp))
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = formatDuration(day.minutes),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
+    }
+}
+
+private fun formatDuration(minutes: Int): String {
+    if (minutes <= 0) return "0m"
+    val h = minutes / 60
+    val m = minutes % 60
+    return when {
+        h == 0 -> "${m}m"
+        m == 0 -> "${h}h"
+        else -> "${h}h${m}m"
     }
 }

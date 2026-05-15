@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -38,6 +39,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sumit.launcher.ui.model.AppInfo
+import com.sumit.sololevelinglauncher.ui.theme.SLAccentBlue
+import com.sumit.sololevelinglauncher.ui.theme.SLAccentPurple
+import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
 import kotlinx.coroutines.launch
 
 @Composable
@@ -77,7 +81,7 @@ fun AppBarIndex(
     )
 
     with(boxScope) {
-        // BUBBLE
+        // BUBBLE (neumorphic, accent gradient)
         if (showBubble && pressedAlphabet != null) {
             Box(
                 modifier = Modifier
@@ -93,25 +97,34 @@ fun AppBarIndex(
                         scaleX = bubbleScale
                         scaleY = bubbleScale
                     }
-                    .size(48.dp)
-                    .background(Color.White, shape = CircleShape),
+                    .size(52.dp)
+                    .background(
+                        brush = Brush.linearGradient(listOf(SLAccentPurple, SLAccentBlue)),
+                        shape = CircleShape
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = pressedAlphabet.toString(),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = Color.Black
+                    fontSize = 22.sp,
+                    color = androidx.compose.ui.graphics.Color.White
                 )
             }
         }
 
-        // INDEX BAR
+        // INDEX BAR (neumorphic pill)
         Column(
             modifier = Modifier
-                .width(50.dp)
+                .width(36.dp)
                 .fillMaxHeight()
                 .align(Alignment.CenterEnd)
+                .padding(end = 8.dp, top = 12.dp, bottom = 12.dp)
+                .neumorphicSurface(
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+                    elevation = 8.dp,
+                    color = MaterialTheme.colorScheme.surfaceContainer
+                )
                 .padding(vertical = 8.dp)
                 .onGloballyPositioned { layout ->
                     indexBarHeightPx = layout.size.height.toFloat()
@@ -153,13 +166,16 @@ fun AppBarIndex(
         ) {
             alphabets.forEach { alphabet ->
                 Box(
-                    modifier = Modifier.size(28.dp),
+                    modifier = Modifier.size(24.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = alphabet.toString(),
-                        fontSize = 14.sp,
-                        color = if (pressedAlphabet == alphabet) Color.Black else Color.White,
+                        fontSize = 12.sp,
+                        color = if (pressedAlphabet == alphabet)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = if (pressedAlphabet == alphabet) FontWeight.Bold else FontWeight.Normal
                     )
                 }
