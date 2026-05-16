@@ -25,7 +25,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import com.sumit.launcher.R
 import kotlin.math.ceil
 
 @Composable
@@ -52,17 +54,25 @@ fun FocusPromptDialog(
     val isReady = progressValue >= 1f
 
     val isLimitPrompt = limitMinutes != null
-    val title = if (isLimitPrompt) "Daily limit reached" else "Take a breath"
+    val title = stringResource(
+        if (isLimitPrompt) R.string.focus_prompt_title_limit
+        else R.string.focus_prompt_title_default
+    )
     val subtitle = if (isLimitPrompt) {
-        "You've used $appLabel for ${usedMinutes ?: 0} of $limitMinutes min today."
+        stringResource(
+            R.string.focus_prompt_subtitle_limit,
+            appLabel,
+            usedMinutes ?: 0,
+            limitMinutes
+        )
     } else {
-        "Pause before opening $appLabel."
+        stringResource(R.string.focus_prompt_subtitle_default, appLabel)
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.corner_dialog)),
         title = {
             Text(text = title, color = MaterialTheme.colorScheme.onSurface)
         },
@@ -76,25 +86,26 @@ fun FocusPromptDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_5xl)))
                 Box(
-                    modifier = Modifier.size(72.dp),
+                    modifier = Modifier.size(dimensionResource(R.dimen.focus_prompt_progress)),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
                         progress = { progressValue },
-                        modifier = Modifier.size(72.dp),
-                        strokeWidth = 4.dp,
+                        modifier = Modifier.size(dimensionResource(R.dimen.focus_prompt_progress)),
+                        strokeWidth = dimensionResource(R.dimen.progress_stroke),
                         color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                     Text(
-                        text = if (isReady) "Go" else remaining.toString(),
+                        text = if (isReady) stringResource(R.string.focus_prompt_ready)
+                        else remaining.toString(),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl)))
             }
         },
         confirmButton = {
@@ -102,16 +113,18 @@ fun FocusPromptDialog(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TextButton(onClick = onDismiss) { Text("Cancel") }
-                Spacer(modifier = Modifier.width(8.dp))
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_md)))
                 Button(
                     onClick = onConfirm,
                     enabled = isReady,
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.corner_chip)),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
-                ) { Text("Open") }
+                ) { Text(stringResource(R.string.action_open)) }
             }
         }
     )

@@ -29,7 +29,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import com.sumit.launcher.R
 import com.sumit.launcher.data.focus.AppFocusEntry
 import com.sumit.launcher.ui.model.AppInfo
 
@@ -59,15 +61,23 @@ fun AppFocusSettingsSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+        shape = RoundedCornerShape(
+            topStart = dimensionResource(R.dimen.corner_sheet),
+            topEnd = dimensionResource(R.dimen.corner_sheet)
+        )
     ) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = dimensionResource(R.dimen.spacing_5xl),
+                vertical = dimensionResource(R.dimen.spacing_md)
+            )
+        ) {
             Text(
                 text = app.label,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_5xl)))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -76,12 +86,12 @@ fun AppFocusSettingsSheet(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "Focus prompt",
+                        stringResource(R.string.app_focus_prompt_title),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        "Add a 5-second pause before this app opens.",
+                        stringResource(R.string.app_focus_prompt_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -91,30 +101,32 @@ fun AppFocusSettingsSheet(
                     onCheckedChange = { requirePrompt = it }
                 )
             }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_5xl)))
 
             Text(
-                "Daily limit",
+                stringResource(R.string.app_focus_daily_limit_title),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                "Once reached, opening requires a 15-second pause.",
+                stringResource(R.string.app_focus_daily_limit_subtitle),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl)))
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(
+                    dimensionResource(R.dimen.spacing_md)
+                )
             ) {
                 FilterChip(
                     selected = days == 0 && minutes == 0,
                     onClick = { days = 0; minutes = 0 },
-                    label = { Text("Off") },
+                    label = { Text(stringResource(R.string.app_focus_chip_off)) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                         selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -124,7 +136,9 @@ fun AppFocusSettingsSheet(
                     FilterChip(
                         selected = days == 0 && minutes == preset,
                         onClick = { days = 0; minutes = preset },
-                        label = { Text("$preset min") },
+                        label = {
+                            Text(stringResource(R.string.app_focus_chip_minutes, preset))
+                        },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                             selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -132,14 +146,14 @@ fun AppFocusSettingsSheet(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_3xl)))
 
             Text(
                 text = formatLimit(days, minutes),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xs)))
 
             Slider(
                 value = days.toFloat(),
@@ -172,30 +186,37 @@ fun AppFocusSettingsSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_3xl)))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.action_cancel))
+                }
                 TextButton(
                     onClick = {
                         val totalMinutes = days * 1440 + minutes
                         onSave(requirePrompt, totalMinutes.takeIf { it > 0 })
                     }
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.action_save)) }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_md)))
         }
     }
 }
 
+@Composable
 private fun formatLimit(days: Int, minutes: Int): String {
-    if (days == 0 && minutes == 0) return "No limit"
+    if (days == 0 && minutes == 0) return stringResource(R.string.app_focus_limit_off)
     val parts = mutableListOf<String>()
-    if (days > 0) parts += if (days == 1) "1 day" else "$days days"
+    if (days > 0) {
+        parts += if (days == 1) stringResource(R.string.app_focus_label_one_day)
+        else stringResource(R.string.app_focus_label_days, days)
+    }
     if (minutes > 0) {
-        parts += if (minutes == 60) "1h" else "$minutes min"
+        parts += if (minutes == 60) stringResource(R.string.app_focus_label_one_hour)
+        else stringResource(R.string.app_focus_label_minutes, minutes)
     }
     return parts.joinToString(" ")
 }

@@ -1,0 +1,68 @@
+<resources>
+    <!-- Spacing scale -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">6dp</dimen>
+    <dimen name="spacing_md">8dp</dimen>
+    <dimen name="spacing_lg">10dp</dimen>
+    <dimen name="spacing_xl">12dp</dimen>
+    <dimen name="spacing_2xl">14dp</dimen>
+    <dimen name="spacing_3xl">16dp</dimen>
+    <dimen name="spacing_4xl">18dp</dimen>
+    <dimen name="spacing_5xl">20dp</dimen>
+    <dimen name="spacing_6xl">24dp</dimen>
+    <dimen name="spacing_screen_top">60dp</dimen>
+
+    <!-- Corner radii -->
+    <dimen name="corner_chip">14dp</dimen>
+    <dimen name="corner_card">16dp</dimen>
+    <dimen name="corner_card_lg">20dp</dimen>
+    <dimen name="corner_card_xl">22dp</dimen>
+    <dimen name="corner_dialog">24dp</dimen>
+    <dimen name="corner_sheet">28dp</dimen>
+    <dimen name="corner_pill">50dp</dimen>
+
+    <!-- Elevations -->
+    <dimen name="elevation_card_sm">8dp</dimen>
+    <dimen name="elevation_card">10dp</dimen>
+    <dimen name="elevation_card_md">12dp</dimen>
+    <dimen name="elevation_card_lg">14dp</dimen>
+    <dimen name="elevation_clock">18dp</dimen>
+
+    <!-- Card sizes -->
+    <dimen name="card_height_compact">72dp</dimen>
+    <dimen name="card_height_date">152dp</dimen>
+    <dimen name="card_width_date">120dp</dimen>
+    <dimen name="card_padding_h">18dp</dimen>
+    <dimen name="card_padding_v">10dp</dimen>
+    <dimen name="card_padding_v_lg">14dp</dimen>
+    <dimen name="date_card_padding_h">14dp</dimen>
+
+    <!-- Component sizes -->
+    <dimen name="clock_size">150dp</dimen>
+    <dimen name="clock_canvas_inset">10dp</dimen>
+    <dimen name="focus_prompt_progress">72dp</dimen>
+    <dimen name="app_icon_container">48dp</dimen>
+    <dimen name="app_icon">34dp</dimen>
+    <dimen name="task_add_icon">32dp</dimen>
+    <dimen name="task_delete_icon">28dp</dimen>
+    <dimen name="search_field_height">56dp</dimen>
+    <dimen name="search_field_top_padding">50dp</dimen>
+    <dimen name="app_bar_index_padding_end">56dp</dimen>
+
+    <!-- Bar chart -->
+    <dimen name="chart_bar_height">6dp</dimen>
+    <dimen name="chart_bar_max_width">64dp</dimen>
+    <dimen name="chart_day_label_width">14dp</dimen>
+
+    <!-- Focus indicator pill -->
+    <dimen name="pill_padding_h">14dp</dimen>
+    <dimen name="pill_padding_v">6dp</dimen>
+
+    <!-- Snackbar -->
+    <dimen name="snackbar_bottom">24dp</dimen>
+
+    <!-- Stroke widths -->
+    <dimen name="progress_stroke">4dp</dimen>
+    <dimen name="progress_stroke_thin">2dp</dimen>
+    <dimen name="usage_card_border">1dp</dimen>
+</resources>

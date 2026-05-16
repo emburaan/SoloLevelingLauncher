@@ -20,7 +20,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import com.sumit.launcher.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.sumit.sololevelinglauncher.ui.theme.SLAccentPurple
@@ -53,7 +55,7 @@ fun NeumorphicAnalogClock(modifier: Modifier) {
     Box(
         modifier = modifier
             .shadow(
-                elevation = 18.dp,
+                elevation = dimensionResource(R.dimen.elevation_clock),
                 shape = CircleShape,
                 ambientColor = tones.shadow,
                 spotColor = tones.shadow,
@@ -62,7 +64,11 @@ fun NeumorphicAnalogClock(modifier: Modifier) {
             .background(face, CircleShape),
         contentAlignment = Alignment.Center
     ) {
-        Canvas(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(dimensionResource(R.dimen.clock_canvas_inset))
+        ) {
             val center = Offset(size.width / 2f, size.height / 2f)
             val radius = size.minDimension / 2f
 

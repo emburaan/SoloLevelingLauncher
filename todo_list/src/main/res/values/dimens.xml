@@ -1,0 +1,17 @@
+<resources>
+    <dimen name="task_card_corner">22dp</dimen>
+    <dimen name="task_card_elevation">14dp</dimen>
+    <dimen name="task_card_border">1dp</dimen>
+    <dimen name="task_card_padding_h">18dp</dimen>
+    <dimen name="task_card_padding_v">16dp</dimen>
+    <dimen name="task_card_width_fraction">0.94</dimen>
+
+    <dimen name="task_header_spacing">10dp</dimen>
+    <dimen name="task_row_padding_v">4dp</dimen>
+    <dimen name="task_empty_padding_v">6dp</dimen>
+    <dimen name="task_text_start_padding">12dp</dimen>
+
+    <dimen name="task_add_button_size">32dp</dimen>
+    <dimen name="task_radio_size">24dp</dimen>
+    <dimen name="task_delete_size">28dp</dimen>
+</resources>

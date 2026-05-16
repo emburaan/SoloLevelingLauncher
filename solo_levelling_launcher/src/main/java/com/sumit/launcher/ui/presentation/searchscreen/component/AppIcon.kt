@@ -18,9 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import com.sumit.launcher.R
 import com.sumit.launcher.ui.model.AppInfo
 import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
 
@@ -34,17 +36,17 @@ fun AppIcon(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .padding(vertical = dimensionResource(R.dimen.spacing_xs))
             .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         val bitmap = remember(app.icon) { app.icon.toBitmap(96, 96).asImageBitmap() }
         Box(
             modifier = Modifier
-                .size(48.dp)
+                .size(dimensionResource(R.dimen.app_icon_container))
                 .neumorphicSurface(
-                    shape = RoundedCornerShape(14.dp),
-                    elevation = 8.dp,
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.corner_chip)),
+                    elevation = dimensionResource(R.dimen.elevation_card_sm),
                     color = MaterialTheme.colorScheme.surfaceContainer
                 ),
             contentAlignment = Alignment.Center
@@ -53,11 +55,11 @@ fun AppIcon(
                 bitmap = bitmap,
                 contentDescription = app.label,
                 modifier = Modifier
-                    .size(34.dp)
+                    .size(dimensionResource(R.dimen.app_icon))
                     .padding(2.dp)
             )
         }
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_2xl)))
         Text(
             text = app.label,
             color = MaterialTheme.colorScheme.onSurface,

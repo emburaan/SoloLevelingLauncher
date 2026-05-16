@@ -1,0 +1,12 @@
+<resources>
+    <dimen name="dialog_corner">24dp</dimen>
+    <dimen name="sheet_corner">28dp</dimen>
+    <dimen name="button_corner">14dp</dimen>
+
+    <dimen name="sheet_padding_h">20dp</dimen>
+    <dimen name="sheet_padding_v">8dp</dimen>
+    <dimen name="sheet_button_top">20dp</dimen>
+    <dimen name="sheet_button_bottom">12dp</dimen>
+    <dimen name="sheet_button_height">52dp</dimen>
+    <dimen name="sheet_body_top">8dp</dimen>
+</resources>

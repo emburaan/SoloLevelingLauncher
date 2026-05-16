@@ -33,10 +33,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sumit.todo_list.R
 import com.sumit.todo_list.presentation.TaskListViewModel
 
 private val AccentPurple = Color(0xFF6C63FF)
@@ -62,12 +64,12 @@ fun TaskListSection(
         )
     }
 
-    val shape = RoundedCornerShape(22.dp)
+    val shape = RoundedCornerShape(dimensionResource(R.dimen.task_card_corner))
     Column(
         modifier = Modifier
             .fillMaxWidth(0.94f)
             .shadow(
-                elevation = 14.dp,
+                elevation = dimensionResource(R.dimen.task_card_elevation),
                 shape = shape,
                 ambientColor = Color.Black,
                 spotColor = Color.Black,
@@ -75,8 +77,15 @@ fun TaskListSection(
             )
             .clip(shape)
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f), shape)
-            .padding(horizontal = 18.dp, vertical = 16.dp),
+            .border(
+                dimensionResource(R.dimen.task_card_border),
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
+                shape
+            )
+            .padding(
+                horizontal = dimensionResource(R.dimen.task_card_padding_h),
+                vertical = dimensionResource(R.dimen.task_card_padding_v)
+            ),
         horizontalAlignment = Alignment.Start
     ) {
         Row(
@@ -85,13 +94,13 @@ fun TaskListSection(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Today's Tasks",
+                text = stringResource(R.string.task_list_title),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleMedium
             )
             Box(
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(dimensionResource(R.dimen.task_add_button_size))
                     .clip(CircleShape)
                     .background(Brush.linearGradient(listOf(AccentPurple, AccentBlue)))
                     .clickable {
@@ -103,17 +112,23 @@ fun TaskListSection(
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "+", color = Color.White, fontSize = 20.sp)
+                Text(
+                    text = stringResource(R.string.task_add_symbol),
+                    color = Color.White,
+                    fontSize = 20.sp
+                )
             }
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.task_header_spacing)))
 
         if (tasks.isEmpty()) {
             Text(
-                text = "No tasks yet — tap + to add one",
+                text = stringResource(R.string.task_list_empty),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(vertical = 6.dp)
+                modifier = Modifier.padding(
+                    vertical = dimensionResource(R.dimen.task_empty_padding_v)
+                )
             )
         } else {
             tasks.forEach { task ->
@@ -121,7 +136,7 @@ fun TaskListSection(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = dimensionResource(R.dimen.task_row_padding_v))
                 ) {
                     RadioButton(
                         selected = task.isChecked,
@@ -130,7 +145,7 @@ fun TaskListSection(
                             selectedColor = AccentPurple,
                             unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.task_radio_size))
                     )
                     Text(
                         text = task.text,
@@ -146,17 +161,21 @@ fun TaskListSection(
                         ),
                         modifier = Modifier
                             .weight(1f)
-                            .padding(start = 12.dp)
+                            .padding(start = dimensionResource(R.dimen.task_text_start_padding))
                             .clickable { viewModel.toggleTask(task) }
                     )
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(dimensionResource(R.dimen.task_delete_size))
                             .clip(CircleShape)
                             .clickable { viewModel.deleteTask(task.id) },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("×", color = DeleteRed, fontSize = 20.sp)
+                        Text(
+                            text = stringResource(R.string.task_delete_symbol),
+                            color = DeleteRed,
+                            fontSize = 20.sp
+                        )
                     }
                 }
             }
@@ -173,23 +192,23 @@ private fun AddTaskDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        shape = RoundedCornerShape(22.dp),
-        title = { Text("New Task") },
+        shape = RoundedCornerShape(dimensionResource(R.dimen.task_card_corner)),
+        title = { Text(stringResource(R.string.task_add_dialog_title)) },
         text = {
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
-                label = { Text("Task name") },
+                label = { Text(stringResource(R.string.task_add_dialog_field_label)) },
                 singleLine = true
             )
         },
         confirmButton = {
             TextButton(
                 onClick = { if (text.isNotBlank()) onConfirm(text) else onDismiss() }
-            ) { Text("Add") }
+            ) { Text(stringResource(R.string.task_action_add)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.task_action_cancel)) }
         }
     )
 }

@@ -15,28 +15,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-
-        ndk {
-            // arm64 only for the first cut. Add armeabi-v7a / x86_64 later if needed.
-            abiFilters += "arm64-v8a"
-        }
-        externalNativeBuild {
-            cmake {
-                arguments += "-DCMAKE_BUILD_TYPE=Release"
-                arguments += "-DANDROID_STL=c++_shared"
-                cppFlags += "-O3 -fexceptions -frtti"
-            }
-        }
     }
-
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
-
-    ndkVersion = "25.1.8937393"
 
     buildTypes {
         release {

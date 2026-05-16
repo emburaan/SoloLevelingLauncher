@@ -9,4 +9,18 @@
     <string name="add_task_hint">Task name</string>
     <string name="action_add">Add</string>
     <string name="action_cancel">Cancel</string>
+
+    <!-- First-run dialogs -->
+    <string name="dialog_usage_access_title">Usage access</string>
+    <string name="dialog_usage_access_body">Solo Leveling Launcher uses your screen-time history to show the weekly usage chart on the home screen. Grant access in Settings?</string>
+    <string name="dialog_open_settings">Open Settings</string>
+    <string name="dialog_not_now">Not now</string>
+
+    <string name="dialog_battery_title">Keep launcher responsive</string>
+    <string name="dialog_battery_body">Android may pause the launcher in the background. Allow Solo Leveling Launcher to ignore battery optimisations so it stays fast and the clock and task list stay current.</string>
+    <string name="dialog_battery_allow">Allow</string>
+
+    <string name="default_launcher_sheet_title">Set as Default Launcher</string>
+    <string name="default_launcher_sheet_body">To get the best experience, set this app as your default launcher.</string>
+    <string name="default_launcher_sheet_button">Set as Default Launcher</string>
 </resources>

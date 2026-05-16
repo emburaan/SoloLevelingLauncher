@@ -78,27 +78,31 @@ class UsageStatsRepository @Inject constructor(
         val events = runCatching { usm.queryEvents(windowStart, now) }.getOrNull()
             ?: return emptyList()
         val ev = UsageEvents.Event()
-        var fgPackage: String? = null
-        var fgStart: Long = 0L
 
-        @Suppress("DEPRECATION")
+        // Sum screen-on durations. A session starts when SCREEN_INTERACTIVE fires
+        // and ends on SCREEN_NON_INTERACTIVE (or as a safety net, the 6-hour cap).
+        var sessionStart: Long? = null
+
         while (events.hasNextEvent()) {
             events.getNextEvent(ev)
             when (ev.eventType) {
-                UsageEvents.Event.MOVE_TO_FOREGROUND -> {
-                    if (fgPackage != null) addUsage(fgStart, ev.timeStamp)
-                    fgPackage = ev.packageName
-                    fgStart = ev.timeStamp
+                EVENT_SCREEN_INTERACTIVE -> {
+                    if (sessionStart == null) sessionStart = ev.timeStamp
                 }
-                UsageEvents.Event.MOVE_TO_BACKGROUND -> {
-                    if (fgPackage == ev.packageName) {
-                        addUsage(fgStart, ev.timeStamp)
-                        fgPackage = null
+                EVENT_SCREEN_NON_INTERACTIVE -> {
+                    val start = sessionStart
+                    if (start != null) {
+                        addUsage(start, cappedEnd(start, ev.timeStamp))
+                    } else {
+                        // Screen was already on at windowStart — count the partial.
+                        addUsage(windowStart, cappedEnd(windowStart, ev.timeStamp))
                     }
+                    sessionStart = null
                 }
             }
         }
-        if (fgPackage != null) addUsage(fgStart, now)
+        val open = sessionStart
+        if (open != null) addUsage(open, cappedEnd(open, now))
 
         return (0..6).map { idx ->
             val dayStart = windowStart + idx * msPerDay
@@ -149,21 +153,95 @@ class UsageStatsRepository @Inject constructor(
             when (ev.eventType) {
                 UsageEvents.Event.MOVE_TO_FOREGROUND -> {
                     val open = fgPackage
-                    if (open != null) addUsage(open, fgStart, ev.timeStamp)
+                    if (open != null) {
+                        addUsage(open, fgStart, cappedEnd(fgStart, ev.timeStamp))
+                    }
                     fgPackage = ev.packageName
                     fgStart = ev.timeStamp
                 }
-                UsageEvents.Event.MOVE_TO_BACKGROUND -> {
-                    if (fgPackage == ev.packageName) {
-                        addUsage(ev.packageName, fgStart, ev.timeStamp)
+                UsageEvents.Event.MOVE_TO_BACKGROUND,
+                EVENT_SCREEN_NON_INTERACTIVE,
+                EVENT_KEYGUARD_SHOWN -> {
+                    val open = fgPackage
+                    if (open != null) {
+                        addUsage(open, fgStart, cappedEnd(fgStart, ev.timeStamp))
                         fgPackage = null
                     }
                 }
             }
         }
         val stillOpen = fgPackage
-        if (stillOpen != null) addUsage(stillOpen, fgStart, now)
+        if (stillOpen != null) addUsage(stillOpen, fgStart, cappedEnd(fgStart, now))
 
         return msByPackage.mapValues { (it.value / 60_000L).toInt() }
+    }
+
+    /**
+     * Today's screen-on stats: how many times the screen woke up and the total minutes on.
+     * Counts SCREEN_INTERACTIVE events as pickups; sums SCREEN_INTERACTIVE → SCREEN_NON_INTERACTIVE
+     * pairs for total minutes (with the same 6-hour cap as [getLastSevenDays]).
+     */
+    fun getTodayScreenStats(): TodayScreenStats {
+        if (!hasUsageAccess()) return TodayScreenStats(pickups = 0, minutes = 0)
+
+        val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+            ?: return TodayScreenStats(pickups = 0, minutes = 0)
+
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val todayStart = cal.timeInMillis
+        val now = System.currentTimeMillis()
+
+        val events = runCatching { usm.queryEvents(todayStart, now) }.getOrNull()
+            ?: return TodayScreenStats(pickups = 0, minutes = 0)
+        val ev = UsageEvents.Event()
+        var pickups = 0
+        var totalMs = 0L
+        var sessionStart: Long? = null
+
+        while (events.hasNextEvent()) {
+            events.getNextEvent(ev)
+            when (ev.eventType) {
+                EVENT_SCREEN_INTERACTIVE -> {
+                    pickups++
+                    if (sessionStart == null) sessionStart = ev.timeStamp
+                }
+                EVENT_SCREEN_NON_INTERACTIVE -> {
+                    val start = sessionStart
+                    if (start != null) {
+                        totalMs += cappedEnd(start, ev.timeStamp) - start
+                    } else {
+                        totalMs += cappedEnd(todayStart, ev.timeStamp) - todayStart
+                    }
+                    sessionStart = null
+                }
+            }
+        }
+        val open = sessionStart
+        if (open != null) totalMs += cappedEnd(open, now) - open
+
+        return TodayScreenStats(
+            pickups = pickups,
+            minutes = (totalMs / 60_000L).toInt()
+        )
+    }
+
+    private companion object {
+        // UsageEvents.Event constants — named constants exist on API 28+, but the
+        // underlying events themselves fire on earlier API levels too. Hardcoded
+        // values stay stable across releases.
+        const val EVENT_SCREEN_INTERACTIVE = 15
+        const val EVENT_SCREEN_NON_INTERACTIVE = 16
+        const val EVENT_KEYGUARD_SHOWN = 17
+
+        /** Cap a single foreground session at 6 hours to defend against missing end events. */
+        const val MAX_SESSION_MS = 6L * 60L * 60L * 1000L
+
+        fun cappedEnd(start: Long, end: Long): Long =
+            if (end - start > MAX_SESSION_MS) start + MAX_SESSION_MS else end
     }
 }

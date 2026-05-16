@@ -37,12 +37,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sumit.launcher.ui.presentation.homescreen.UsageUiState
 import com.sumit.launcher.ui.presentation.homescreen.UsageViewModel
 import com.sumit.launcher.ui.presentation.homescreen.component.HomeScreen
 import com.sumit.launcher.ui.presentation.searchscreen.component.AppListWithSearchScreen
+import com.sumit.sololevelinglauncher.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,14 +70,9 @@ fun MainActivityCompose() {
         AlertDialog(
             onDismissRequest = { dismissedUsageDialog = true },
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            shape = RoundedCornerShape(24.dp),
-            title = { Text("Usage access") },
-            text = {
-                Text(
-                    "Solo Leveling Launcher uses your screen-time history to show the " +
-                        "weekly usage chart on the home screen. Grant access in Settings?"
-                )
-            },
+            shape = RoundedCornerShape(dimensionResource(R.dimen.dialog_corner)),
+            title = { Text(stringResource(R.string.dialog_usage_access_title)) },
+            text = { Text(stringResource(R.string.dialog_usage_access_body)) },
             confirmButton = {
                 TextButton(
                     colors = ButtonDefaults.textButtonColors(
@@ -88,10 +85,12 @@ fun MainActivityCompose() {
                         )
                         dismissedUsageDialog = true
                     }
-                ) { Text("Open Settings") }
+                ) { Text(stringResource(R.string.dialog_open_settings)) }
             },
             dismissButton = {
-                TextButton(onClick = { dismissedUsageDialog = true }) { Text("Not now") }
+                TextButton(onClick = { dismissedUsageDialog = true }) {
+                    Text(stringResource(R.string.dialog_not_now))
+                }
             }
         )
     }
@@ -104,15 +103,9 @@ fun MainActivityCompose() {
         AlertDialog(
             onDismissRequest = { dismissedBatteryDialog = true },
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            shape = RoundedCornerShape(24.dp),
-            title = { Text("Keep launcher responsive") },
-            text = {
-                Text(
-                    "Android may pause the launcher in the background. Allow Solo Leveling " +
-                        "Launcher to ignore battery optimisations so it stays fast and the " +
-                        "clock and task list stay current."
-                )
-            },
+            shape = RoundedCornerShape(dimensionResource(R.dimen.dialog_corner)),
+            title = { Text(stringResource(R.string.dialog_battery_title)) },
+            text = { Text(stringResource(R.string.dialog_battery_body)) },
             confirmButton = {
                 TextButton(
                     colors = ButtonDefaults.textButtonColors(
@@ -126,10 +119,12 @@ fun MainActivityCompose() {
                         )
                         dismissedBatteryDialog = true
                     }
-                ) { Text("Allow") }
+                ) { Text(stringResource(R.string.dialog_battery_allow)) }
             },
             dismissButton = {
-                TextButton(onClick = { dismissedBatteryDialog = true }) { Text("Not now") }
+                TextButton(onClick = { dismissedBatteryDialog = true }) {
+                    Text(stringResource(R.string.dialog_not_now))
+                }
             }
         )
     }
@@ -138,19 +133,27 @@ fun MainActivityCompose() {
         ModalBottomSheet(
             onDismissRequest = { showSheet = false },
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+            shape = RoundedCornerShape(
+                topStart = dimensionResource(R.dimen.sheet_corner),
+                topEnd = dimensionResource(R.dimen.sheet_corner)
+            )
         ) {
-            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+            Column(
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(R.dimen.sheet_padding_h),
+                    vertical = dimensionResource(R.dimen.sheet_padding_v)
+                )
+            ) {
                 Text(
-                    "Set as Default Launcher",
+                    stringResource(R.string.default_launcher_sheet_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    "To get the best experience, set this app as your default launcher.",
+                    stringResource(R.string.default_launcher_sheet_body),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = dimensionResource(R.dimen.sheet_body_top))
                 )
                 Button(
                     onClick = {
@@ -172,13 +175,16 @@ fun MainActivityCompose() {
                         )
                         showSheet = false
                     },
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.button_corner)),
                     modifier = Modifier
-                        .padding(top = 20.dp, bottom = 12.dp)
+                        .padding(
+                            top = dimensionResource(R.dimen.sheet_button_top),
+                            bottom = dimensionResource(R.dimen.sheet_button_bottom)
+                        )
                         .fillMaxWidth()
-                        .height(52.dp)
+                        .height(dimensionResource(R.dimen.sheet_button_height))
                 ) {
-                    Text("Set as Default Launcher")
+                    Text(stringResource(R.string.default_launcher_sheet_button))
                 }
             }
         }

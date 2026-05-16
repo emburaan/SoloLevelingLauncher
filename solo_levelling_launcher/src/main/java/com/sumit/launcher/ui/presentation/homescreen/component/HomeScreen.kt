@@ -1,6 +1,10 @@
 package com.sumit.launcher.ui.presentation.homescreen.component
 
+import android.content.Context
+import android.content.Intent
+import android.provider.AlarmClock
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,13 +12,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -30,14 +34,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.sumit.launcher.R
-import com.sumit.launcher.command.CommandBarSheet
 import com.sumit.launcher.ui.presentation.homescreen.UsageUiState
 import com.sumit.launcher.ui.presentation.homescreen.UsageViewModel
 import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
@@ -56,7 +61,9 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val motivationalMessages = stringArrayResource(R.array.task_limit_motivational_messages)
-    var showCommandBar by remember { mutableStateOf(false) }
+    var showFocusBlocks by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     DisposableEffect(lifecycleOwner) {
         var tickJob: Job? = null
         val observer = LifecycleEventObserver { _, event ->
@@ -66,7 +73,11 @@ fun HomeScreen(
                     tickJob = scope.launch {
                         while (isActive) {
                             usageViewModel.refresh()
-                            delay(60_000)
+                            // Sleep until the next minute mark OR just past midnight,
+                            // whichever comes first. This snaps the pickup/screen-time
+                            // bar to 0 exactly at the day boundary instead of up to
+                            // 60 s later.
+                            delay(delayToNextTickMs())
                         }
                     }
                 }
@@ -99,20 +110,28 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 60.dp, bottom = 16.dp),
+                .padding(
+                    top = dimensionResource(R.dimen.spacing_screen_top),
+                    bottom = dimensionResource(R.dimen.spacing_3xl)
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            FocusModeIndicator()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = dimensionResource(R.dimen.spacing_3xl)),
                 verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(
+                    dimensionResource(R.dimen.spacing_3xl)
+                )
             ) {
                 when (val state = usageState) {
                     is UsageUiState.Ready -> UsageBarChart(
                         usageData = state.days,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { showFocusBlocks = true }
                     )
                     UsageUiState.NeedsPermission -> UsageAccessPrompt(
                         modifier = Modifier.weight(1f)
@@ -127,10 +146,11 @@ fun HomeScreen(
                     modifier = Modifier
                         .weight(1f)
                         .aspectRatio(1f)
+                        .clickable { openClock(context) }
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_6xl)))
             TaskListSection(
                 onMaxReached = {
                     scope.launch {
@@ -140,6 +160,48 @@ fun HomeScreen(
                 }
             )
 
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl)))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = dimensionResource(R.dimen.spacing_3xl)),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(
+                        dimensionResource(R.dimen.spacing_md)
+                    ),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    DateCard(
+                        modifier = Modifier
+                            .width(dimensionResource(R.dimen.card_width_date))
+                            .height(dimensionResource(R.dimen.card_height_date))
+                            .clickable { openCalendar(context) }
+                    )
+                    Column(
+                        modifier = Modifier.width(IntrinsicSize.Max),
+                        verticalArrangement = Arrangement.spacedBy(
+                            dimensionResource(R.dimen.spacing_md)
+                        )
+                    ) {
+                        val cardModifier = Modifier
+                            .fillMaxWidth()
+                            .height(dimensionResource(R.dimen.card_height_compact))
+                        SettingsCard(
+                            onClick = { showSettings = true },
+                            modifier = cardModifier
+                        )
+                        (usageState as? UsageUiState.Ready)?.let { ready ->
+                            PickupCounter(
+                                stats = ready.today,
+                                modifier = cardModifier
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.weight(1f))
         }
 
@@ -147,17 +209,24 @@ fun HomeScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 24.dp, start = 16.dp, end = 16.dp)
+                .padding(
+                    bottom = dimensionResource(R.dimen.snackbar_bottom),
+                    start = dimensionResource(R.dimen.spacing_3xl),
+                    end = dimensionResource(R.dimen.spacing_3xl)
+                )
         ) { data ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .neumorphicSurface(
-                        shape = RoundedCornerShape(22.dp),
-                        elevation = 14.dp,
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.corner_card_xl)),
+                        elevation = dimensionResource(R.dimen.elevation_card_lg),
                         color = MaterialTheme.colorScheme.surfaceContainerHigh
                     )
-                    .padding(horizontal = 18.dp, vertical = 14.dp)
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.card_padding_h),
+                        vertical = dimensionResource(R.dimen.card_padding_v_lg)
+                    )
             ) {
                 Text(
                     text = data.visuals.message,
@@ -166,20 +235,47 @@ fun HomeScreen(
                 )
             }
         }
-
-        FloatingActionButton(
-            onClick = { showCommandBar = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 24.dp),
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ) {
-            Text("AI")
-        }
     }
 
-    if (showCommandBar) {
-        CommandBarSheet(onDismiss = { showCommandBar = false })
+    if (showFocusBlocks) {
+        FocusBlocksSheet(onDismiss = { showFocusBlocks = false })
     }
+
+    if (showSettings) {
+        SettingsSheet(
+            onDismiss = { showSettings = false },
+            onOpenFocusBlocks = { showFocusBlocks = true }
+        )
+    }
+}
+
+private fun openClock(context: Context) {
+    val intent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    runCatching { context.startActivity(intent) }
+}
+
+private fun openCalendar(context: Context) {
+    val intent = Intent(Intent.ACTION_MAIN)
+        .addCategory(Intent.CATEGORY_APP_CALENDAR)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    runCatching { context.startActivity(intent) }
+}
+
+/**
+ * Returns how long to sleep before the next [UsageViewModel.refresh]. Caps at 60 s,
+ * but if the next local midnight comes sooner, sleep until just after midnight so
+ * the pickup count snaps to 0 cleanly instead of lagging by up to a minute.
+ */
+private fun delayToNextTickMs(): Long {
+    val now = java.util.Calendar.getInstance()
+    val midnight = (now.clone() as java.util.Calendar).apply {
+        add(java.util.Calendar.DAY_OF_YEAR, 1)
+        set(java.util.Calendar.HOUR_OF_DAY, 0)
+        set(java.util.Calendar.MINUTE, 0)
+        set(java.util.Calendar.SECOND, 0)
+        set(java.util.Calendar.MILLISECOND, 0)
+    }
+    val msToMidnight = midnight.timeInMillis - now.timeInMillis + 200L
+    return minOf(60_000L, msToMidnight)
 }

@@ -4,10 +4,11 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sumit.launcher.data.focus.AppFocusRepository
 import com.sumit.launcher.data.focus.AppFocusState
-import com.sumit.launcher.data.launch.AppLaunchPolicy
-import com.sumit.launcher.data.launch.LaunchDecision
+import com.sumit.launcher.domain.focus.ObserveAppFocusStateUseCase
+import com.sumit.launcher.domain.focus.UpdateAppFocusUseCase
+import com.sumit.launcher.domain.launch.DecideAppLaunchUseCase
+import com.sumit.launcher.domain.launch.LaunchDecision
 import com.sumit.launcher.ui.model.AppInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,13 +33,14 @@ sealed interface LaunchEffect {
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val launchPolicy: AppLaunchPolicy,
-    private val focusRepository: AppFocusRepository
+    private val decideAppLaunch: DecideAppLaunchUseCase,
+    private val updateAppFocus: UpdateAppFocusUseCase,
+    observeAppFocusState: ObserveAppFocusStateUseCase
 ) : ViewModel() {
     private val _apps = MutableStateFlow<List<AppInfo>>(emptyList())
     val apps: StateFlow<List<AppInfo>> = _apps
 
-    val focusState: StateFlow<AppFocusState> = focusRepository.state
+    val focusState: StateFlow<AppFocusState> = observeAppFocusState()
 
     private val _effects = Channel<LaunchEffect>(capacity = Channel.BUFFERED)
     val effects = _effects.receiveAsFlow()
@@ -48,7 +50,7 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     fun onAppClicked(app: AppInfo) {
-        when (val decision = launchPolicy.decide(app.packageName)) {
+        when (val decision = decideAppLaunch(app.packageName)) {
             LaunchDecision.LaunchNow -> launch(app.packageName)
             is LaunchDecision.RequireFocusPrompt -> _effects.trySend(
                 LaunchEffect.FocusPrompt(app = app, countdownSeconds = decision.countdownSeconds)
@@ -71,11 +73,11 @@ class SearchScreenViewModel @Inject constructor(
     fun confirmLaunch(packageName: String) = launch(packageName)
 
     fun setRequirePrompt(packageName: String, enabled: Boolean) {
-        focusRepository.setRequirePrompt(packageName, enabled)
+        updateAppFocus.setRequirePrompt(packageName, enabled)
     }
 
     fun setDailyLimit(packageName: String, minutes: Int?) {
-        focusRepository.setDailyLimit(packageName, minutes)
+        updateAppFocus.setDailyLimit(packageName, minutes)
     }
 
     private fun launch(packageName: String) {

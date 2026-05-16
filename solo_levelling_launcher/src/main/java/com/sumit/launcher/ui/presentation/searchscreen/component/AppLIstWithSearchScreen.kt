@@ -28,10 +28,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sumit.launcher.R
 import com.sumit.launcher.ui.model.AppInfo
 import com.sumit.launcher.ui.presentation.searchscreen.LaunchEffect
 import com.sumit.launcher.ui.presentation.searchscreen.SearchScreenViewModel
@@ -75,14 +77,17 @@ fun AppListWithSearchScreen(
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(50.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.search_field_top_padding)))
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             singleLine = true,
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(dimensionResource(R.dimen.corner_card_lg)),
             placeholder = {
-                Text("Search apps", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = stringResource(R.string.search_apps_placeholder),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             },
             textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
             colors = OutlinedTextFieldDefaults.colors(
@@ -97,25 +102,25 @@ fun AppListWithSearchScreen(
                     IconButton(onClick = { searchQuery = TextFieldValue("") }) {
                         Icon(
                             imageVector = Icons.Filled.Close,
-                            contentDescription = "Clear",
+                            contentDescription = stringResource(R.string.content_desc_clear),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 } else {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.content_desc_search),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             },
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = dimensionResource(R.dimen.spacing_3xl))
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(dimensionResource(R.dimen.search_field_height))
                 .fillMaxHeight()
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_3xl)))
         AppGrid(
             apps = filteredApps,
             onAppClicked = viewModel::onAppClicked,

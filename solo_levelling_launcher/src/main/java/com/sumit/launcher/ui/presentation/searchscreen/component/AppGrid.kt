@@ -10,7 +10,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import com.sumit.launcher.R
 import com.sumit.launcher.ui.model.AppInfo
 import com.sumit.launcher.ui.presentation.homescreen.component.AppBarIndex
 
@@ -26,8 +27,13 @@ fun AppGrid(
             state = gridState,
             columns = GridCells.Fixed(1),
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 16.dp, end = 56.dp, top = 4.dp, bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            contentPadding = PaddingValues(
+                start = dimensionResource(R.dimen.spacing_3xl),
+                end = dimensionResource(R.dimen.app_bar_index_padding_end),
+                top = dimensionResource(R.dimen.spacing_xs),
+                bottom = dimensionResource(R.dimen.spacing_3xl)
+            ),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_sm))
         ) {
             items(apps) { app ->
                 AppIcon(

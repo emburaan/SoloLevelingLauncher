@@ -1,4 +1,5 @@
 <resources>
+    <!-- Snackbar / motivational -->
     <string-array name="task_limit_motivational_messages">
         <item>Five quests at a time — conquer them before unlocking more.</item>
         <item>Priority is power. Focus on the five that matter.</item>
@@ -7,4 +8,76 @@
         <item>The hunter focuses. The prey scatters. Finish your five.</item>
         <item>Don\'t dilute your effort. Five priorities. No more.</item>
     </string-array>
+
+    <!-- Home screen -->
+    <string name="content_desc_settings">Settings</string>
+    <string name="pickup_label">pickups</string>
+    <string name="chart_last_seven_days">Last 7 days</string>
+    <string name="usage_access_needed">Usage access</string>
+
+    <!-- Focus mode pill -->
+    <string name="focus_mode_active">● Focus mode</string>
+
+    <!-- Focus blocks sheet -->
+    <string name="focus_blocks_title">Focus blocks</string>
+    <string name="focus_blocks_subtitle">During an active block, apps you\'ve flagged (long-press → \"Focus prompt\") require a 30-second pause instead of the usual 5 seconds.</string>
+    <string name="focus_blocks_empty">No focus blocks yet — tap \"Add\" to create one.</string>
+    <string name="focus_block_active_now">● Active now</string>
+    <string name="action_close">Close</string>
+    <string name="action_add">Add</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_open">Open</string>
+    <string name="focus_block_add_title">Add focus block</string>
+    <string name="focus_block_edit_title">Edit focus block</string>
+    <string name="focus_block_start_chip">Start: %1$s</string>
+    <string name="focus_block_end_chip">End: %1$s</string>
+    <string name="focus_block_days_label">Days</string>
+    <string name="focus_block_time_range">%1$s – %2$s</string>
+    <string name="focus_block_days_none">No days</string>
+    <string name="focus_block_days_every">Every day</string>
+    <string name="focus_block_days_weekdays">Weekdays</string>
+    <string name="focus_block_days_weekends">Weekends</string>
+    <string name="day_initial_mon">M</string>
+    <string name="day_initial_tue">T</string>
+    <string name="day_initial_wed">W</string>
+    <string name="day_initial_thu">T</string>
+    <string name="day_initial_fri">F</string>
+    <string name="day_initial_sat">S</string>
+    <string name="day_initial_sun">S</string>
+
+    <!-- Settings sheet -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_focus_schedule_title">Focus schedule</string>
+    <string name="settings_focus_schedule_subtitle">Set deep-work windows</string>
+
+    <!-- Search / app drawer -->
+    <string name="search_apps_placeholder">Search apps</string>
+    <string name="content_desc_clear">Clear</string>
+    <string name="content_desc_search">Search</string>
+    <string name="usage_access_prompt_title">Allow usage access</string>
+    <string name="usage_access_prompt_body">Required to show screen time.</string>
+    <string name="usage_access_prompt_button">Open settings</string>
+    <string name="usage_chart_label">Usage chart</string>
+    <string name="usage_chart_tap_hint">Tap to grant usage access</string>
+
+    <!-- App focus settings sheet (per-app long-press) -->
+    <string name="app_focus_prompt_title">Focus prompt</string>
+    <string name="app_focus_prompt_subtitle">Add a 5-second pause before this app opens.</string>
+    <string name="app_focus_daily_limit_title">Daily limit</string>
+    <string name="app_focus_daily_limit_subtitle">Once reached, opening requires a 15-second pause.</string>
+    <string name="app_focus_limit_off">No limit</string>
+    <string name="app_focus_chip_off">Off</string>
+    <string name="app_focus_chip_minutes">%1$d min</string>
+    <string name="app_focus_label_one_hour">1h</string>
+    <string name="app_focus_label_minutes">%1$d min</string>
+    <string name="app_focus_label_one_day">1 day</string>
+    <string name="app_focus_label_days">%1$d days</string>
+
+    <!-- Focus prompt dialog -->
+    <string name="focus_prompt_title_default">Take a breath</string>
+    <string name="focus_prompt_title_limit">Daily limit reached</string>
+    <string name="focus_prompt_subtitle_default">Pause before opening %1$s.</string>
+    <string name="focus_prompt_subtitle_limit">You\'ve used %1$s for %2$d of %3$d min today.</string>
+    <string name="focus_prompt_ready">Go</string>
 </resources>
