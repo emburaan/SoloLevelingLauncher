@@ -161,30 +161,35 @@ fun HomeScreen(
             )
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl)))
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = dimensionResource(R.dimen.spacing_3xl)),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(
-                        dimensionResource(R.dimen.spacing_md)
+                    .padding(
+                        start = dimensionResource(R.dimen.spacing_3xl),
+                        end = dimensionResource(R.dimen.spacing_3xl)
                     ),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    DateCard(
-                        modifier = Modifier
-                            .width(dimensionResource(R.dimen.card_width_date))
-                            .height(dimensionResource(R.dimen.card_height_date))
-                            .clickable { openCalendar(context) }
+                horizontalArrangement = Arrangement.spacedBy(
+                    dimensionResource(R.dimen.spacing_md)
+                ),
+                verticalAlignment = Alignment.Top
+            ) {
+                DaysLeftCard(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(dimensionResource(R.dimen.card_height_date))
+                )
+                DateCard(
+                    modifier = Modifier
+                        .width(dimensionResource(R.dimen.card_width_date))
+                        .height(dimensionResource(R.dimen.card_height_date))
+                        .clickable { openCalendar(context) }
+                )
+                Column(
+                    modifier = Modifier.width(IntrinsicSize.Max),
+                    verticalArrangement = Arrangement.spacedBy(
+                        dimensionResource(R.dimen.spacing_md)
                     )
-                    Column(
-                        modifier = Modifier.width(IntrinsicSize.Max),
-                        verticalArrangement = Arrangement.spacedBy(
-                            dimensionResource(R.dimen.spacing_md)
-                        )
-                    ) {
+                ) {
                         val cardModifier = Modifier
                             .fillMaxWidth()
                             .height(dimensionResource(R.dimen.card_height_compact))
@@ -200,7 +205,6 @@ fun HomeScreen(
                         }
                     }
                 }
-            }
 
             Spacer(modifier = Modifier.weight(1f))
         }
