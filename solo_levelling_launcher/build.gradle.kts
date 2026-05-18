@@ -45,6 +45,7 @@ android {
 dependencies {
 
     implementation(project(":todo_list"))
+    implementation(project(":clock"))
 
     implementation(libs.androidx.material3)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -22,4 +22,5 @@ dependencyResolutionManagement {
 rootProject.name = "Solo Leveling Launcher"
 include(":app")
 include(":todo_list")
+include(":clock")
 include(":solo_levelling_launcher")

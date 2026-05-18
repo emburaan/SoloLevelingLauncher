@@ -230,6 +230,34 @@ class UsageStatsRepository @Inject constructor(
         )
     }
 
+    /**
+     * Returns the timestamp of the most recent SCREEN_INTERACTIVE event with no later
+     * SCREEN_NON_INTERACTIVE — i.e. when the current continuous screen-on session started.
+     * Returns null if the screen is off, no event found in the lookback window, or no access.
+     */
+    fun currentScreenOnSince(): Long? {
+        if (!hasUsageAccess()) return null
+        val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+            ?: return null
+
+        val now = System.currentTimeMillis()
+        val windowStart = now - 24L * 60L * 60L * 1000L  // look back 24 hours
+
+        val events = runCatching { usm.queryEvents(windowStart, now) }.getOrNull()
+            ?: return null
+        val ev = UsageEvents.Event()
+        var sessionStart: Long? = null
+
+        while (events.hasNextEvent()) {
+            events.getNextEvent(ev)
+            when (ev.eventType) {
+                EVENT_SCREEN_INTERACTIVE -> if (sessionStart == null) sessionStart = ev.timeStamp
+                EVENT_SCREEN_NON_INTERACTIVE -> sessionStart = null
+            }
+        }
+        return sessionStart
+    }
+
     private companion object {
         // UsageEvents.Event constants — named constants exist on API 28+, but the
         // underlying events themselves fire on earlier API levels too. Hardcoded

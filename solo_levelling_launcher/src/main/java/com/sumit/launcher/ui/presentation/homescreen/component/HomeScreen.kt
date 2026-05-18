@@ -2,7 +2,6 @@ package com.sumit.launcher.ui.presentation.homescreen.component
 
 import android.content.Context
 import android.content.Intent
-import android.provider.AlarmClock
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.sumit.clock.ui.ClockSheet
 import com.sumit.launcher.R
 import com.sumit.launcher.ui.presentation.homescreen.UsageUiState
 import com.sumit.launcher.ui.presentation.homescreen.UsageViewModel
@@ -54,7 +54,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-    usageViewModel: UsageViewModel = hiltViewModel()
+    usageViewModel: UsageViewModel = hiltViewModel(),
+    focusCheckViewModel: FocusCheckViewModel = hiltViewModel()
 ) {
     val usageState by usageViewModel.state.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -63,6 +64,7 @@ fun HomeScreen(
     val motivationalMessages = stringArrayResource(R.array.task_limit_motivational_messages)
     var showFocusBlocks by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
+    var showClock by remember { mutableStateOf(false) }
     val context = LocalContext.current
     DisposableEffect(lifecycleOwner) {
         var tickJob: Job? = null
@@ -73,6 +75,7 @@ fun HomeScreen(
                     tickJob = scope.launch {
                         while (isActive) {
                             usageViewModel.refresh()
+                            focusCheckViewModel.evaluate()
                             // Sleep until the next minute mark OR just past midnight,
                             // whichever comes first. This snaps the pickup/screen-time
                             // bar to 0 exactly at the day boundary instead of up to
@@ -146,7 +149,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .weight(1f)
                         .aspectRatio(1f)
-                        .clickable { openClock(context) }
+                        .clickable { showClock = true }
                 )
             }
 
@@ -251,12 +254,19 @@ fun HomeScreen(
             onOpenFocusBlocks = { showFocusBlocks = true }
         )
     }
-}
 
-private fun openClock(context: Context) {
-    val intent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
-        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    runCatching { context.startActivity(intent) }
+    if (showClock) {
+        ClockSheet(onDismiss = { showClock = false })
+    }
+
+    val pendingFocusCheck by focusCheckViewModel.pendingCheck.collectAsState()
+    pendingFocusCheck?.let { minutes ->
+        FocusCheckDialog(
+            minutes = minutes,
+            onContinue = { focusCheckViewModel.dismiss() },
+            onStepAway = { focusCheckViewModel.dismiss() }
+        )
+    }
 }
 
 private fun openCalendar(context: Context) {

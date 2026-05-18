@@ -1,0 +1,1 @@
+-keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.timer.TimerViewModel
