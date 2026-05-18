@@ -154,16 +154,6 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_6xl)))
-            TaskListSection(
-                onMaxReached = {
-                    scope.launch {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar(motivationalMessages.random())
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl)))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -193,23 +183,32 @@ fun HomeScreen(
                         dimensionResource(R.dimen.spacing_md)
                     )
                 ) {
-                        val cardModifier = Modifier
-                            .fillMaxWidth()
-                            .height(dimensionResource(R.dimen.card_height_compact))
-                        SettingsCard(
-                            onClick = { showSettings = true },
+                    val cardModifier = Modifier
+                        .fillMaxWidth()
+                        .height(dimensionResource(R.dimen.card_height_compact))
+                    SettingsCard(
+                        onClick = { showSettings = true },
+                        modifier = cardModifier
+                    )
+                    (usageState as? UsageUiState.Ready)?.let { ready ->
+                        PickupCounter(
+                            stats = ready.today,
                             modifier = cardModifier
                         )
-                        (usageState as? UsageUiState.Ready)?.let { ready ->
-                            PickupCounter(
-                                stats = ready.today,
-                                modifier = cardModifier
-                            )
-                        }
                     }
                 }
+            }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl)))
+            TaskListSection(
+                modifier = Modifier.weight(1f, fill = false),
+                onMaxReached = {
+                    scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(motivationalMessages.random())
+                    }
+                }
+            )
         }
 
         SnackbarHost(

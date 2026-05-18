@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -47,6 +49,7 @@ private val DeleteRed = Color(0xFFFF6B6B)
 
 @Composable
 fun TaskListSection(
+    modifier: Modifier = Modifier,
     viewModel: TaskListViewModel = hiltViewModel(),
     onMaxReached: () -> Unit = {}
 ) {
@@ -66,7 +69,7 @@ fun TaskListSection(
 
     val shape = RoundedCornerShape(dimensionResource(R.dimen.task_card_corner))
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(0.94f)
             .shadow(
                 elevation = dimensionResource(R.dimen.task_card_elevation),
@@ -121,18 +124,24 @@ fun TaskListSection(
         }
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.task_header_spacing)))
 
-        if (tasks.isEmpty()) {
-            Text(
-                text = stringResource(R.string.task_list_empty),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(
-                    vertical = dimensionResource(R.dimen.task_empty_padding_v)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f, fill = false)
+                .verticalScroll(rememberScrollState())
+        ) {
+            if (tasks.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.task_list_empty),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(
+                        vertical = dimensionResource(R.dimen.task_empty_padding_v)
+                    )
                 )
-            )
-        } else {
-            tasks.forEach { task ->
-                Row(
+            } else {
+                tasks.forEach { task ->
+                    Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -180,6 +189,7 @@ fun TaskListSection(
                 }
             }
         }
+    }
     }
 }
 
