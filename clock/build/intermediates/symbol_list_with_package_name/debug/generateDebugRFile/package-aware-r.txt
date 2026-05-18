@@ -23,7 +23,6 @@ string alarm_repeat_label
 string alarm_ring_title
 string alarm_save
 string alarm_shake_count_label
-string alarm_snooze
 string alarm_typing_phrase_label
 string clock_back
 string clock_tab_alarm

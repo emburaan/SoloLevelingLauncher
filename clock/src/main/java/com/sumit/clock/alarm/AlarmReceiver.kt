@@ -15,21 +15,23 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             ACTION_FIRE -> handleFire(context, intent)
-            ACTION_SNOOZE -> handleSnooze(intent)
         }
     }
 
     private fun handleFire(context: Context, intent: Intent) {
+        AlarmWakeLock.acquire(context)
         val alarmId = intent.getLongExtra(EXTRA_ALARM_ID, -1L)
-        if (alarmId < 0) return
-        val alarm = repository.find(alarmId) ?: return
+        if (alarmId < 0) {
+            AlarmWakeLock.release()
+            return
+        }
+        val alarm = repository.find(alarmId)
+        if (alarm == null) {
+            AlarmWakeLock.release()
+            return
+        }
 
-        val ringIntent = Intent(context, AlarmRingActivity::class.java).apply {
-            addFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                    Intent.FLAG_ACTIVITY_NO_HISTORY
-            )
+        val fireIntent = Intent().apply {
             putExtra(EXTRA_ALARM_ID, alarmId)
             putExtra(EXTRA_ALARM_LABEL, alarm.label)
             putExtra(EXTRA_ALARM_HOUR, alarm.hour)
@@ -39,7 +41,7 @@ class AlarmReceiver : BroadcastReceiver() {
             putExtra(EXTRA_SHAKE_COUNT, alarm.shakeCount)
             putExtra(EXTRA_TYPING_PHRASE, alarm.typingPhrase)
         }
-        runCatching { context.startActivity(ringIntent) }
+        AlarmRingService.start(context, fireIntent)
 
         if (alarm.repeatDaily) {
             scheduler.schedule(alarm)
@@ -48,16 +50,8 @@ class AlarmReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun handleSnooze(intent: Intent) {
-        val alarmId = intent.getLongExtra(EXTRA_ALARM_ID, -1L)
-        if (alarmId < 0) return
-        val alarm = repository.find(alarmId) ?: return
-        scheduler.schedule(alarm, System.currentTimeMillis() + SNOOZE_MS)
-    }
-
     companion object {
         const val ACTION_FIRE = "com.sumit.clock.action.ALARM_FIRE"
-        const val ACTION_SNOOZE = "com.sumit.clock.action.ALARM_SNOOZE"
         const val EXTRA_ALARM_ID = "alarm_id"
         const val EXTRA_ALARM_LABEL = "alarm_label"
         const val EXTRA_ALARM_HOUR = "alarm_hour"
@@ -66,6 +60,5 @@ class AlarmReceiver : BroadcastReceiver() {
         const val EXTRA_MATH_DIFFICULTY = "math_difficulty"
         const val EXTRA_SHAKE_COUNT = "shake_count"
         const val EXTRA_TYPING_PHRASE = "typing_phrase"
-        const val SNOOZE_MS = 5L * 60L * 1000L
     }
 }

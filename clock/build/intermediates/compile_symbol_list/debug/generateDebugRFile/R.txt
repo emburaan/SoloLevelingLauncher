@@ -22,7 +22,6 @@ int string alarm_repeat_label 0x0
 int string alarm_ring_title 0x0
 int string alarm_save 0x0
 int string alarm_shake_count_label 0x0
-int string alarm_snooze 0x0
 int string alarm_typing_phrase_label 0x0
 int string clock_back 0x0
 int string clock_tab_alarm 0x0

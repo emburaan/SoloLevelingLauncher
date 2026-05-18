@@ -1,48 +1,48 @@
 package com.sumit.clock.alarm
 
+import android.content.Context
 import android.content.Intent
-import android.media.AudioAttributes
-import android.media.MediaPlayer
-import android.media.RingtoneManager
+import android.graphics.Color as AndroidColor
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sumit.clock.R
+import com.sumit.clock.ui.alarm.AlarmTheme
 import com.sumit.clock.ui.alarm.MathChallenge
 import com.sumit.clock.ui.alarm.ShakeChallenge
 import com.sumit.clock.ui.alarm.TypingChallenge
 
 class AlarmRingActivity : ComponentActivity() {
 
-    private var ringer: MediaPlayer? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -56,10 +56,13 @@ class AlarmRingActivity : ComponentActivity() {
             )
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        volumeControlStream = AudioManager.STREAM_ALARM
+        pinAlarmVolumeToMax()
 
-        startRinger()
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() = Unit
+        })
 
-        val alarmId = intent.getLongExtra(AlarmReceiver.EXTRA_ALARM_ID, -1L)
         val label = intent.getStringExtra(AlarmReceiver.EXTRA_ALARM_LABEL).orEmpty()
         val hour = intent.getIntExtra(AlarmReceiver.EXTRA_ALARM_HOUR, 0)
         val minute = intent.getIntExtra(AlarmReceiver.EXTRA_ALARM_MINUTE, 0)
@@ -79,55 +82,67 @@ class AlarmRingActivity : ComponentActivity() {
             ?: DismissDefaults.TYPING_PHRASE
 
         setContent {
-            AlarmRingContent(
-                hour = hour,
-                minute = minute,
-                label = label,
-                mathProblems = mathProblems,
-                mathDifficulty = mathDifficulty,
-                shakeCount = shakeCount,
-                typingPhrase = typingPhrase,
-                onSnooze = {
-                    if (alarmId >= 0) {
-                        val snoozeIntent = Intent(this, AlarmReceiver::class.java).apply {
-                            action = AlarmReceiver.ACTION_SNOOZE
-                            putExtra(AlarmReceiver.EXTRA_ALARM_ID, alarmId)
-                        }
-                        sendBroadcast(snoozeIntent)
+            AlarmTheme {
+                AlarmRingContent(
+                    hour = hour,
+                    minute = minute,
+                    label = label,
+                    mathProblems = mathProblems,
+                    mathDifficulty = mathDifficulty,
+                    shakeCount = shakeCount,
+                    typingPhrase = typingPhrase,
+                    onDismiss = {
+                        AlarmRingService.stop(this)
+                        finishAndRemoveTask()
                     }
-                    finishAndRemoveTask()
-                },
-                onDismiss = { finishAndRemoveTask() }
+                )
+            }
+        }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (isVolumeKey(keyCode)) {
+            pinAlarmVolumeToMax()
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (isVolumeKey(keyCode)) {
+            pinAlarmVolumeToMax()
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) pinAlarmVolumeToMax()
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        val relaunch = Intent(this, AlarmRingActivity::class.java).apply {
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
             )
         }
+        runCatching { startActivity(relaunch) }
     }
 
-    override fun onDestroy() {
-        ringer?.let { mp ->
-            runCatching { mp.stop() }
-            runCatching { mp.release() }
-        }
-        ringer = null
-        super.onDestroy()
-    }
+    private fun isVolumeKey(keyCode: Int): Boolean =
+        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
+            keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+            keyCode == KeyEvent.KEYCODE_VOLUME_MUTE
 
-    private fun startRinger() {
-        val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-            ?: return
+    private fun pinAlarmVolumeToMax() {
+        val am = getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
         runCatching {
-            ringer = MediaPlayer().apply {
-                setDataSource(this@AlarmRingActivity, uri)
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
-                isLooping = true
-                prepare()
-                start()
-            }
+            val max = am.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            am.setStreamVolume(AudioManager.STREAM_ALARM, max, 0)
         }
     }
 }
@@ -141,39 +156,38 @@ private fun AlarmRingContent(
     mathDifficulty: MathDifficulty,
     shakeCount: Int,
     typingPhrase: String,
-    onSnooze: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val dismissMode = remember { DismissMode.entries.random() }
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101015))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(top = 48.dp, bottom = 120.dp, start = 24.dp, end = 24.dp),
+                .padding(top = 48.dp, bottom = 48.dp, start = 24.dp, end = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = stringResource(R.string.alarm_ring_title),
                 style = MaterialTheme.typography.labelLarge,
-                color = Color(0xFFB0B0B8)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = "%02d:%02d".format(hour, minute),
                 style = MaterialTheme.typography.displayLarge,
                 fontWeight = FontWeight.Light,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
             if (label.isNotBlank()) {
                 Text(
                     text = label,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFFE0E0E8),
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
             }
@@ -193,17 +207,6 @@ private fun AlarmRingContent(
                     phrase = typingPhrase,
                     onComplete = onDismiss
                 )
-            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(24.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            OutlinedButton(onClick = onSnooze) {
-                Text(stringResource(R.string.alarm_snooze))
             }
         }
     }

@@ -19,10 +19,14 @@ class AlarmScheduler @Inject constructor(
 
     fun schedule(alarm: Alarm, triggerAtMillis: Long = nextTrigger(alarm)) {
         val pi = pendingIntent(alarm.id)
+        val showPi = showIntent(alarm.id)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
             alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi)
         } else {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pi)
+            alarmManager.setAlarmClock(
+                AlarmManager.AlarmClockInfo(triggerAtMillis, showPi),
+                pi
+            )
         }
     }
 
@@ -41,6 +45,19 @@ class AlarmScheduler @Inject constructor(
         return PendingIntent.getBroadcast(
             context,
             alarmId.toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    private fun showIntent(alarmId: Long): PendingIntent {
+        val intent = Intent(context, AlarmRingActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            putExtra(AlarmReceiver.EXTRA_ALARM_ID, alarmId)
+        }
+        return PendingIntent.getActivity(
+            context,
+            alarmId.toInt() xor 0x5EEFA1,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

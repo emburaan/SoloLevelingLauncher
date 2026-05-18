@@ -19,7 +19,6 @@
     <string name="alarm_cancel">Cancel</string>
     <string name="alarm_ring_title">Alarm</string>
     <string name="alarm_dismiss">Dismiss</string>
-    <string name="alarm_snooze">Snooze 5 min</string>
     <string name="alarm_repeat_label">Daily</string>
     <string name="alarm_exact_warning">Allow exact alarms in system Settings so this fires on time.</string>
     <string name="alarm_exact_action">Open settings</string>

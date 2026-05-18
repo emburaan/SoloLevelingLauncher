@@ -16,46 +16,67 @@
 10    <uses-permission android:name="android.permission.WAKE_LOCK" />
 10-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:7:5-68
 10-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:7:22-65
-11
-12    <application>
-12-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:9:5-30:19
-13        <activity
-13-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:10:9-16:47
-14            android:name="com.sumit.clock.alarm.AlarmRingActivity"
-14-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:11:13-67
-15            android:excludeFromRecents="true"
-15-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:13:13-46
-16            android:exported="false"
-16-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:12:13-37
-17            android:launchMode="singleInstance"
-17-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:15:13-48
-18            android:showOnLockScreen="true"
-18-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:16:13-44
-19            android:taskAffinity="" />
-19-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:14:13-36
-20
-21        <receiver
-21-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:18:9-20:40
-22            android:name="com.sumit.clock.alarm.AlarmReceiver"
-22-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:19:13-63
-23            android:exported="false" />
-23-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:20:13-37
-24        <receiver
-24-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:22:9-29:20
-25            android:name="com.sumit.clock.alarm.AlarmBootReceiver"
-25-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:23:13-67
-26            android:exported="true" >
-26-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:24:13-36
-27            <intent-filter>
-27-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:25:13-28:29
-28                <action android:name="android.intent.action.BOOT_COMPLETED" />
-28-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:26:17-79
-28-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:26:25-76
-29                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-29-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:27:17-86
-29-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:27:25-83
-30            </intent-filter>
-31        </receiver>
-32    </application>
-33
-34</manifest>
+11    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+11-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:8:5-77
+11-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:8:22-74
+12    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+12-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:9:5-92
+12-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:9:22-89
+13    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+13-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:10:5-77
+13-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:10:22-74
+14    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+14-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:11:5-81
+14-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:11:22-78
+15
+16    <application>
+16-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:13:5-39:19
+17        <activity
+17-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:14:9-20:47
+18            android:name="com.sumit.clock.alarm.AlarmRingActivity"
+18-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:15:13-67
+19            android:excludeFromRecents="true"
+19-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:17:13-46
+20            android:exported="false"
+20-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:16:13-37
+21            android:launchMode="singleInstance"
+21-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:19:13-48
+22            android:showOnLockScreen="true"
+22-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:20:13-44
+23            android:taskAffinity="" />
+23-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:18:13-36
+24
+25        <service
+25-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:22:9-25:61
+26            android:name="com.sumit.clock.alarm.AlarmRingService"
+26-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:23:13-66
+27            android:exported="false"
+27-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:24:13-37
+28            android:foregroundServiceType="mediaPlayback" />
+28-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:25:13-58
+29
+30        <receiver
+30-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:27:9-29:40
+31            android:name="com.sumit.clock.alarm.AlarmReceiver"
+31-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:28:13-63
+32            android:exported="false" />
+32-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:29:13-37
+33        <receiver
+33-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:31:9-38:20
+34            android:name="com.sumit.clock.alarm.AlarmBootReceiver"
+34-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:32:13-67
+35            android:exported="true" >
+35-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:33:13-36
+36            <intent-filter>
+36-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:34:13-37:29
+37                <action android:name="android.intent.action.BOOT_COMPLETED" />
+37-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:35:17-79
+37-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:35:25-76
+38                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+38-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:36:17-86
+38-->/Users/sumitcheriyan/AndroidStudioProjects/SoloLevelingLauncher/clock/src/main/AndroidManifest.xml:36:25-83
+39            </intent-filter>
+40        </receiver>
+41    </application>
+42
+43</manifest>

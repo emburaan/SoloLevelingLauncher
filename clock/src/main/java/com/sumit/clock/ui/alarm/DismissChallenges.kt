@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -23,19 +26,44 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.sumit.clock.alarm.MathDifficulty
 import com.sumit.clock.alarm.ShakeDetector
 import com.sumit.clock.alarm.generateMathProblem
 
-private val Light = Color(0xFFE0E0E8)
-private val Muted = Color(0xFFB0B0B8)
+private val alarmInputBaseStyle = TextStyle(
+    fontSize = 22.sp,
+    fontWeight = FontWeight.Medium,
+    textAlign = TextAlign.Center
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun alarmFieldColors(): TextFieldColors {
+    val scheme = MaterialTheme.colorScheme
+    val accent = scheme.primary
+    return OutlinedTextFieldDefaults.colors(
+        focusedTextColor = scheme.onBackground,
+        unfocusedTextColor = scheme.onBackground,
+        disabledTextColor = scheme.onSurfaceVariant,
+        errorTextColor = scheme.onBackground,
+        cursorColor = accent,
+        errorCursorColor = scheme.error,
+        focusedBorderColor = accent,
+        unfocusedBorderColor = accent.copy(alpha = 0.55f),
+        focusedLabelColor = accent,
+        unfocusedLabelColor = scheme.onSurfaceVariant,
+        focusedPlaceholderColor = scheme.onSurfaceVariant,
+        unfocusedPlaceholderColor = scheme.onSurfaceVariant
+    )
+}
 
 @Composable
 fun MathChallenge(
@@ -58,13 +86,13 @@ fun MathChallenge(
         Text(
             text = "Problem ${solved + 1} of $problemCount",
             style = MaterialTheme.typography.labelMedium,
-            color = Muted
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = "${problem.text} = ?",
             style = MaterialTheme.typography.displaySmall,
             fontWeight = FontWeight.Light,
-            color = Light
+            color = MaterialTheme.colorScheme.onBackground
         )
         OutlinedTextField(
             value = input,
@@ -75,6 +103,8 @@ fun MathChallenge(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             isError = wrong,
+            textStyle = alarmInputBaseStyle,
+            colors = alarmFieldColors(),
             modifier = Modifier.fillMaxWidth()
         )
         if (wrong) {
@@ -141,14 +171,14 @@ fun ShakeChallenge(
         Text(
             text = "Shake the phone vigorously",
             style = MaterialTheme.typography.titleMedium,
-            color = Light,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
         Text(
             text = "$count / $targetCount",
             style = MaterialTheme.typography.displaySmall,
             fontWeight = FontWeight.Light,
-            color = Light
+            color = MaterialTheme.colorScheme.onBackground
         )
         LinearProgressIndicator(
             progress = { (count.toFloat() / targetCount.toFloat()).coerceIn(0f, 1f) },
@@ -177,19 +207,21 @@ fun TypingChallenge(
         Text(
             text = "Type to dismiss",
             style = MaterialTheme.typography.labelMedium,
-            color = Muted
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = target,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Light,
-            color = Light,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
         OutlinedTextField(
             value = input,
             onValueChange = { input = it },
             singleLine = false,
+            textStyle = alarmInputBaseStyle.copy(textAlign = TextAlign.Start),
+            colors = alarmFieldColors(),
             modifier = Modifier.fillMaxWidth()
         )
         Button(
