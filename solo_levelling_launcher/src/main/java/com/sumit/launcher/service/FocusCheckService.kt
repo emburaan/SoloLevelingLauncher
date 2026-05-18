@@ -104,14 +104,33 @@ class FocusCheckService : Service() {
                 val elapsedMin = ((System.currentTimeMillis() - sessionStartMs) / 60_000L)
                     .toInt()
                     .coerceAtLeast(15)
-                FocusCheckOverlay.show(this, elapsedMin) {
-                    FocusCheckOverlay.hide(this)
-                    scheduleCheck()
-                }
+                FocusCheckOverlay.show(
+                    this,
+                    elapsedMin,
+                    onContinue = {
+                        FocusCheckOverlay.hide(this)
+                        scheduleCheck()
+                    },
+                    onStepAway = {
+                        FocusCheckOverlay.hide(this)
+                        goHome()
+                        // Reset session so the launcher dwelling doesn't immediately
+                        // trigger the next overlay 15 min later.
+                        sessionStartMs = System.currentTimeMillis()
+                        scheduleCheck()
+                    }
+                )
             }
         }
         checkRunnable = runnable
         handler.postDelayed(runnable, INTERVAL_MS)
+    }
+
+    private fun goHome() {
+        val homeIntent = Intent(Intent.ACTION_MAIN)
+            .addCategory(Intent.CATEGORY_HOME)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        runCatching { startActivity(homeIntent) }
     }
 
     private fun cancelCheck() {

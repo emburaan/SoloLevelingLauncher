@@ -25,12 +25,17 @@ object FocusCheckOverlay {
 
     private var attached: View? = null
 
-    fun show(context: Context, elapsedMinutes: Int, onContinue: () -> Unit) {
+    fun show(
+        context: Context,
+        elapsedMinutes: Int,
+        onContinue: () -> Unit,
+        onStepAway: () -> Unit
+    ) {
         if (!Settings.canDrawOverlays(context)) return
         if (attached != null) return  // already showing
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return
 
-        val card = buildCard(context, elapsedMinutes, onContinue)
+        val card = buildCard(context, elapsedMinutes, onContinue, onStepAway)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -66,7 +71,8 @@ object FocusCheckOverlay {
     private fun buildCard(
         context: Context,
         elapsedMinutes: Int,
-        onContinue: () -> Unit
+        onContinue: () -> Unit,
+        onStepAway: () -> Unit
     ): View {
         val density = context.resources.displayMetrics.density
         fun dp(value: Int): Int = (value * density).toInt()
@@ -116,7 +122,7 @@ object FocusCheckOverlay {
 
                 addView(Button(context).apply {
                     text = context.getString(R.string.focus_check_action_step_away)
-                    setOnClickListener { onContinue() }
+                    setOnClickListener { onStepAway() }
                 })
                 addView(Button(context).apply {
                     text = context.getString(R.string.focus_check_action_continue)

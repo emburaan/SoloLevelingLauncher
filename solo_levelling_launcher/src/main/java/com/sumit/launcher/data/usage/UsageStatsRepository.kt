@@ -40,8 +40,9 @@ class UsageStatsRepository @Inject constructor(
     /**
      * Returns 7 entries — index 0 is 6 days ago, index 6 is today. Empty list if no access.
      *
-     * Uses queryEvents to pair MOVE_TO_FOREGROUND/MOVE_TO_BACKGROUND events so overlap
-     * between concurrently-recorded packages isn't double-counted.
+     * Counts foreground app time (MOVE_TO_FOREGROUND → MOVE_TO_BACKGROUND, with
+     * SCREEN_NON_INTERACTIVE / KEYGUARD_SHOWN as fallback enders) so totals match
+     * Digital Wellbeing's "Screen time" — lockscreen peeks aren't included.
      */
     fun getLastSevenDays(): List<DayUsage> {
         if (!hasUsageAccess()) return emptyList()
@@ -78,31 +79,29 @@ class UsageStatsRepository @Inject constructor(
         val events = runCatching { usm.queryEvents(windowStart, now) }.getOrNull()
             ?: return emptyList()
         val ev = UsageEvents.Event()
+        var fgStart: Long = 0L
+        var fgOpen = false
 
-        // Sum screen-on durations. A session starts when SCREEN_INTERACTIVE fires
-        // and ends on SCREEN_NON_INTERACTIVE (or as a safety net, the 6-hour cap).
-        var sessionStart: Long? = null
-
+        @Suppress("DEPRECATION")
         while (events.hasNextEvent()) {
             events.getNextEvent(ev)
             when (ev.eventType) {
-                EVENT_SCREEN_INTERACTIVE -> {
-                    if (sessionStart == null) sessionStart = ev.timeStamp
+                UsageEvents.Event.MOVE_TO_FOREGROUND -> {
+                    if (fgOpen) addUsage(fgStart, cappedEnd(fgStart, ev.timeStamp))
+                    fgStart = ev.timeStamp
+                    fgOpen = true
                 }
-                EVENT_SCREEN_NON_INTERACTIVE -> {
-                    val start = sessionStart
-                    if (start != null) {
-                        addUsage(start, cappedEnd(start, ev.timeStamp))
-                    } else {
-                        // Screen was already on at windowStart — count the partial.
-                        addUsage(windowStart, cappedEnd(windowStart, ev.timeStamp))
+                UsageEvents.Event.MOVE_TO_BACKGROUND,
+                EVENT_SCREEN_NON_INTERACTIVE,
+                EVENT_KEYGUARD_SHOWN -> {
+                    if (fgOpen) {
+                        addUsage(fgStart, cappedEnd(fgStart, ev.timeStamp))
+                        fgOpen = false
                     }
-                    sessionStart = null
                 }
             }
         }
-        val open = sessionStart
-        if (open != null) addUsage(open, cappedEnd(open, now))
+        if (fgOpen) addUsage(fgStart, cappedEnd(fgStart, now))
 
         return (0..6).map { idx ->
             val dayStart = windowStart + idx * msPerDay
@@ -177,9 +176,10 @@ class UsageStatsRepository @Inject constructor(
     }
 
     /**
-     * Today's screen-on stats: how many times the screen woke up and the total minutes on.
-     * Counts SCREEN_INTERACTIVE events as pickups; sums SCREEN_INTERACTIVE → SCREEN_NON_INTERACTIVE
-     * pairs for total minutes (with the same 6-hour cap as [getLastSevenDays]).
+     * Today's screen-on stats: how many times the phone was unlocked and the total minutes on.
+     * Counts KEYGUARD_HIDDEN events as pickups (a true unlock — not just a power-button peek);
+     * sums SCREEN_INTERACTIVE → SCREEN_NON_INTERACTIVE pairs for total minutes (with the same
+     * 6-hour cap as [getLastSevenDays]).
      */
     fun getTodayScreenStats(): TodayScreenStats {
         if (!hasUsageAccess()) return TodayScreenStats(pickups = 0, minutes = 0)
@@ -206,8 +206,8 @@ class UsageStatsRepository @Inject constructor(
         while (events.hasNextEvent()) {
             events.getNextEvent(ev)
             when (ev.eventType) {
+                EVENT_KEYGUARD_HIDDEN -> pickups++
                 EVENT_SCREEN_INTERACTIVE -> {
-                    pickups++
                     if (sessionStart == null) sessionStart = ev.timeStamp
                 }
                 EVENT_SCREEN_NON_INTERACTIVE -> {
@@ -265,6 +265,7 @@ class UsageStatsRepository @Inject constructor(
         const val EVENT_SCREEN_INTERACTIVE = 15
         const val EVENT_SCREEN_NON_INTERACTIVE = 16
         const val EVENT_KEYGUARD_SHOWN = 17
+        const val EVENT_KEYGUARD_HIDDEN = 18
 
         /** Cap a single foreground session at 6 hours to defend against missing end events. */
         const val MAX_SESSION_MS = 6L * 60L * 60L * 1000L
