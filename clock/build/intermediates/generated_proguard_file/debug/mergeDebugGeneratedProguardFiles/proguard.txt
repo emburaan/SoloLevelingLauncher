@@ -1,8 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.alarm.AlarmViewModel
--keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.alarm.AlarmViewModel
--keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.stopwatch.StopwatchViewModel
--keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.stopwatch.StopwatchViewModel
--keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.timer.TimerViewModel
--keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.timer.TimerViewModel
--keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.worldclock.WorldClockViewModel
--keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.worldclock.WorldClockViewModel

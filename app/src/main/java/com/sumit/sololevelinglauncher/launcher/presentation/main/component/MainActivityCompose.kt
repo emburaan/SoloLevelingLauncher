@@ -197,7 +197,7 @@ fun MainActivityCompose() {
         HorizontalPager(state = pagerState) { page ->
             when (page) {
                 0 -> HomeScreen()
-                1 -> AppListWithSearchScreen()
+                1 -> AppListWithSearchScreen(isCurrentPage = pagerState.settledPage == 1)
             }
         }
     }

@@ -28,6 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -40,11 +42,14 @@ import com.sumit.launcher.ui.presentation.searchscreen.SearchScreenViewModel
 
 @Composable
 fun AppListWithSearchScreen(
+    isCurrentPage: Boolean = true,
     viewModel: SearchScreenViewModel = hiltViewModel()
 ) {
     val apps by viewModel.apps.collectAsState()
     val focusState by viewModel.focusState.collectAsState()
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     var prompt by remember { mutableStateOf<LaunchEffect.FocusPrompt?>(null) }
     var settingsApp by remember { mutableStateOf<AppInfo?>(null) }
@@ -55,6 +60,14 @@ fun AppListWithSearchScreen(
                 is LaunchEffect.FocusPrompt -> prompt = effect
                 is LaunchEffect.OpenSettings -> settingsApp = effect.app
             }
+        }
+    }
+
+    LaunchedEffect(isCurrentPage) {
+        if (!isCurrentPage) {
+            searchQuery = TextFieldValue("")
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
         }
     }
 
@@ -123,7 +136,12 @@ fun AppListWithSearchScreen(
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_3xl)))
         AppGrid(
             apps = filteredApps,
-            onAppClicked = viewModel::onAppClicked,
+            onAppClicked = { app ->
+                searchQuery = TextFieldValue("")
+                focusManager.clearFocus(force = true)
+                keyboardController?.hide()
+                viewModel.onAppClicked(app)
+            },
             onAppLongPressed = viewModel::onAppLongPressed
         )
     }

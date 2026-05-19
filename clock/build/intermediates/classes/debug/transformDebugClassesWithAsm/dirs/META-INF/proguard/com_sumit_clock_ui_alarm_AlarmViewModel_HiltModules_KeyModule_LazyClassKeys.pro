@@ -1,1 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.sumit.clock.ui.alarm.AlarmViewModel

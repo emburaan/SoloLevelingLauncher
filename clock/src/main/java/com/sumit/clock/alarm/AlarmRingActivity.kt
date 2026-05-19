@@ -2,7 +2,6 @@ package com.sumit.clock.alarm
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color as AndroidColor
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
@@ -10,7 +9,6 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
