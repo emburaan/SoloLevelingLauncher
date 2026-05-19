@@ -20,7 +20,55 @@
     <string name="dialog_battery_body">Android may pause the launcher in the background. Allow Solo Leveling Launcher to ignore battery optimisations so it stays fast and the clock and task list stay current.</string>
     <string name="dialog_battery_allow">Allow</string>
 
+    <string name="dialog_allow">Allow</string>
+    <string name="dialog_notifications_title">Allow notifications</string>
+    <string name="dialog_notifications_body">Solo Leveling Launcher uses notifications for alarms, timers, and focus check-ins. Allow notifications?</string>
+
+    <string name="dialog_overlay_title">Display over other apps</string>
+    <string name="dialog_overlay_body">To interrupt with a focus check-in while you\'re inside another app, the launcher needs permission to display over other apps.</string>
+
+    <string name="dialog_exact_alarm_title">Allow exact alarms</string>
+    <string name="dialog_exact_alarm_body">Alarms and timers need permission to ring at exact times. Grant access in Settings?</string>
+
     <string name="default_launcher_sheet_title">Set as Default Launcher</string>
     <string name="default_launcher_sheet_body">To get the best experience, set this app as your default launcher.</string>
     <string name="default_launcher_sheet_button">Set as Default Launcher</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip_all">Skip</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_maybe_later">Maybe later</string>
+    <string name="onboarding_finish">Finish</string>
+    <string name="onboarding_get_started">Get started</string>
+
+    <string name="onboarding_notifications_title">Allow notifications</string>
+    <string name="onboarding_notifications_b1">Alarms ring on time</string>
+    <string name="onboarding_notifications_b2">Timers alert you when they finish</string>
+    <string name="onboarding_notifications_b3">Focus check-ins reach you when needed</string>
+
+    <string name="onboarding_usage_title">Track your screen time</string>
+    <string name="onboarding_usage_b1">See your weekly usage chart on home</string>
+    <string name="onboarding_usage_b2">Spot trends in your phone habits</string>
+    <string name="onboarding_usage_b3">Set per-app focus limits</string>
+
+    <string name="onboarding_battery_title">Stay responsive in the background</string>
+    <string name="onboarding_battery_b1">Alarms fire reliably even when idle</string>
+    <string name="onboarding_battery_b2">Focus check-ins aren\'t silently killed</string>
+    <string name="onboarding_battery_b3">Task widget updates stay current</string>
+
+    <string name="onboarding_overlay_title">Interrupt mindless scrolling</string>
+    <string name="onboarding_overlay_b1">Focus check-ins appear over any app</string>
+    <string name="onboarding_overlay_b2">A gentle nudge after long sessions</string>
+    <string name="onboarding_overlay_b3">Tap to return to home and reset</string>
+
+    <string name="onboarding_exact_alarm_title">Ring at the exact moment</string>
+    <string name="onboarding_exact_alarm_b1">Alarms fire to the second</string>
+    <string name="onboarding_exact_alarm_b2">Timers don\'t drift</string>
+    <string name="onboarding_exact_alarm_b3">Focus reminders stay on schedule</string>
+
+    <string name="onboarding_launcher_title">Make this your home screen</string>
+    <string name="onboarding_launcher_b1">Open instantly with the home button</string>
+    <string name="onboarding_launcher_b2">Replace the default distraction-heavy launcher</string>
+    <string name="onboarding_launcher_b3">A minimal screen built for focus</string>
+    <string name="onboarding_launcher_action">Set as default</string>
 </resources>

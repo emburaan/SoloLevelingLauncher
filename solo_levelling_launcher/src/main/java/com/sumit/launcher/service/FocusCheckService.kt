@@ -1,19 +1,21 @@
 package com.sumit.launcher.service
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.sumit.launcher.R
@@ -84,16 +86,51 @@ class FocusCheckService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val nm = getSystemService(NotificationManager::class.java) ?: return
-        if (nm.getNotificationChannel(CHANNEL_ID) != null) return
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            getString(R.string.focus_check_channel_name),
-            NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            description = getString(R.string.focus_check_channel_description)
-            setShowBadge(false)
+        if (nm.getNotificationChannel(CHANNEL_ID) == null) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.focus_check_channel_name),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = getString(R.string.focus_check_channel_description)
+                setShowBadge(false)
+            }
+            nm.createNotificationChannel(channel)
         }
-        nm.createNotificationChannel(channel)
+        if (nm.getNotificationChannel(ALERT_CHANNEL_ID) == null) {
+            val alertChannel = NotificationChannel(
+                ALERT_CHANNEL_ID,
+                getString(R.string.focus_check_alert_channel_name),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = getString(R.string.focus_check_alert_channel_description)
+            }
+            nm.createNotificationChannel(alertChannel)
+        }
+    }
+
+    private fun notifyOverlayPermissionMissing() {
+        val nm = getSystemService(NotificationManager::class.java) ?: return
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:$packageName")
+        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+        val pi = PendingIntent.getActivity(this, 0, intent, flags)
+        val notification = NotificationCompat.Builder(this, ALERT_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle(getString(R.string.focus_check_permission_title))
+            .setContentText(getString(R.string.focus_check_permission_body))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            .setContentIntent(pi)
+            .build()
+        nm.notify(ALERT_NOTIFICATION_ID, notification)
     }
 
     private fun scheduleCheck() {
@@ -104,6 +141,11 @@ class FocusCheckService : Service() {
                 val elapsedMin = ((System.currentTimeMillis() - sessionStartMs) / 60_000L)
                     .toInt()
                     .coerceAtLeast(15)
+                if (!Settings.canDrawOverlays(this)) {
+                    notifyOverlayPermissionMissing()
+                    scheduleCheck()
+                    return@Runnable
+                }
                 FocusCheckOverlay.show(
                     this,
                     elapsedMin,
@@ -159,7 +201,9 @@ class FocusCheckService : Service() {
 
     companion object {
         private const val NOTIFICATION_ID = 4242
+        private const val ALERT_NOTIFICATION_ID = 4243
         private const val CHANNEL_ID = "focus_check"
+        private const val ALERT_CHANNEL_ID = "focus_check_alert"
         private const val INTERVAL_MS = 15L * 60L * 1000L
 
         fun start(context: Context) {

@@ -103,6 +103,10 @@
     <string name="focus_check_service_body">Tap to check in every 15 min of phone use</string>
     <string name="focus_check_channel_name">Focus check</string>
     <string name="focus_check_channel_description">Notification that keeps the focus-check service alive</string>
+    <string name="focus_check_alert_channel_name">Focus check alerts</string>
+    <string name="focus_check_alert_channel_description">Heads-up alerts when the focus check-in can\'t be shown</string>
+    <string name="focus_check_permission_title">Focus check-in blocked</string>
+    <string name="focus_check_permission_body">Grant \"Display over other apps\" so check-ins can interrupt during long sessions.</string>
     <string name="settings_overlay_title">Mid-app focus check</string>
     <string name="settings_overlay_subtitle">Interrupt with a check-in every 15 min of continuous use, even inside other apps</string>
     <string name="settings_overlay_permission_needed">Grant overlay permission to enable this</string>
