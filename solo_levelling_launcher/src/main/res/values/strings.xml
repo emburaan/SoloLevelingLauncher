@@ -92,9 +92,10 @@
     <string name="app_focus_label_one_day">1 day</string>
     <string name="app_focus_label_days">%1$d days</string>
 
-    <!-- 15-minute focus check-in dialog -->
+    <!-- Per-app daily-limit focus check-in dialog -->
     <string name="focus_check_title">Focus check</string>
     <string name="focus_check_body">You\'ve been on your phone for %1$d min. Is this aligned with the purpose you\'re here for?</string>
+    <string name="focus_check_body_app">You\'ve used %1$s for %2$d min today, past the limit you set. Is this still aligned with what you set out to do?</string>
     <string name="focus_check_action_continue">Yes, I\'m on track</string>
     <string name="focus_check_action_step_away">Step away</string>
 

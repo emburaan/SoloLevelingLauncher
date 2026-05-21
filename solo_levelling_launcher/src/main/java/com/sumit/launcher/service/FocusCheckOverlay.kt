@@ -27,7 +27,8 @@ object FocusCheckOverlay {
 
     fun show(
         context: Context,
-        elapsedMinutes: Int,
+        appLabel: String,
+        usedMinutes: Int,
         onContinue: () -> Unit,
         onStepAway: () -> Unit
     ) {
@@ -35,7 +36,7 @@ object FocusCheckOverlay {
         if (attached != null) return  // already showing
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return
 
-        val card = buildCard(context, elapsedMinutes, onContinue, onStepAway)
+        val card = buildCard(context, appLabel, usedMinutes, onContinue, onStepAway)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -70,7 +71,8 @@ object FocusCheckOverlay {
 
     private fun buildCard(
         context: Context,
-        elapsedMinutes: Int,
+        appLabel: String,
+        usedMinutes: Int,
         onContinue: () -> Unit,
         onStepAway: () -> Unit
     ): View {
@@ -99,7 +101,7 @@ object FocusCheckOverlay {
             })
 
             addView(TextView(context).apply {
-                text = context.getString(R.string.focus_check_body, elapsedMinutes)
+                text = context.getString(R.string.focus_check_body_app, appLabel, usedMinutes)
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
                 setTextColor(Color.parseColor("#CCCCCC"))
                 val lp = LinearLayout.LayoutParams(

@@ -258,6 +258,37 @@ class UsageStatsRepository @Inject constructor(
         return sessionStart
     }
 
+    /**
+     * The package currently in the foreground — the most recent MOVE_TO_FOREGROUND that
+     * hasn't since been backgrounded or interrupted by the screen turning off. Returns
+     * null if the screen is off, nothing is resolvable, or usage access is missing.
+     */
+    fun currentForegroundPackage(): String? {
+        if (!hasUsageAccess()) return null
+        val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+            ?: return null
+
+        val now = System.currentTimeMillis()
+        val windowStart = now - 12L * 60L * 60L * 1000L  // look back 12 hours
+
+        val events = runCatching { usm.queryEvents(windowStart, now) }.getOrNull()
+            ?: return null
+        val ev = UsageEvents.Event()
+        var fgPackage: String? = null
+
+        @Suppress("DEPRECATION")
+        while (events.hasNextEvent()) {
+            events.getNextEvent(ev)
+            when (ev.eventType) {
+                UsageEvents.Event.MOVE_TO_FOREGROUND -> fgPackage = ev.packageName
+                UsageEvents.Event.MOVE_TO_BACKGROUND ->
+                    if (ev.packageName == fgPackage) fgPackage = null
+                EVENT_SCREEN_NON_INTERACTIVE, EVENT_KEYGUARD_SHOWN -> fgPackage = null
+            }
+        }
+        return fgPackage
+    }
+
     private companion object {
         // UsageEvents.Event constants — named constants exist on API 28+, but the
         // underlying events themselves fire on earlier API levels too. Hardcoded

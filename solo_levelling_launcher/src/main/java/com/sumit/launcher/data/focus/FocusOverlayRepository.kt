@@ -32,7 +32,7 @@ class FocusOverlayRepository @Inject constructor(
         }
     }
 
-    private companion object {
+    companion object {
         const val PREFS = "focus_overlay"
         const val KEY_ENABLED = "enabled"
     }
