@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,7 +21,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -59,10 +60,12 @@ fun FocusBlocksSheet(
         )
     ) {
         Column(
-            modifier = Modifier.padding(
-                horizontal = dimensionResource(R.dimen.spacing_5xl),
-                vertical = dimensionResource(R.dimen.spacing_md)
-            )
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    horizontal = dimensionResource(R.dimen.spacing_5xl),
+                    vertical = dimensionResource(R.dimen.spacing_md)
+                )
         ) {
             Text(
                 text = stringResource(R.string.focus_blocks_title),
@@ -214,7 +217,7 @@ private fun FocusBlockEditor(
             )
         },
         text = {
-            Column {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(
@@ -247,7 +250,7 @@ private fun FocusBlockEditor(
                     )
                 }
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl)))
-                TimePicker(state = if (editingEnd) endState else startState)
+                TimeInput(state = if (editingEnd) endState else startState)
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_md)))
                 Text(
                     stringResource(R.string.focus_block_days_label),

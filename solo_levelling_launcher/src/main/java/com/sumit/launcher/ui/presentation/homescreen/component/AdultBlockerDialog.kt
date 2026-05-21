@@ -28,7 +28,10 @@ import com.sumit.launcher.R
 private const val PRIVATE_DNS_ACTION = "android.settings.PRIVATE_DNS_SETTINGS"
 
 @Composable
-fun AdultBlockerDialog(onDismiss: () -> Unit) {
+fun AdultBlockerDialog(
+    onDismiss: () -> Unit,
+    onOpenSettings: () -> Unit
+) {
     val context = LocalContext.current
 
     AlertDialog(
@@ -77,7 +80,10 @@ fun AdultBlockerDialog(onDismiss: () -> Unit) {
             }
         },
         confirmButton = {
-            TextButton(onClick = { openPrivateDnsSettings(context) }) {
+            TextButton(onClick = {
+                openPrivateDnsSettings(context)
+                onOpenSettings()
+            }) {
                 Text(stringResource(R.string.adult_blocker_open_settings))
             }
         },

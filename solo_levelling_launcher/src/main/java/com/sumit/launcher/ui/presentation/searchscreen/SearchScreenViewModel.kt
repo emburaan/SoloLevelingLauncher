@@ -1,7 +1,9 @@
 package com.sumit.launcher.ui.presentation.searchscreen
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sumit.launcher.data.focus.AppFocusState
@@ -45,8 +47,31 @@ class SearchScreenViewModel @Inject constructor(
     private val _effects = Channel<LaunchEffect>(capacity = Channel.BUFFERED)
     val effects = _effects.receiveAsFlow()
 
+    private val packageChangeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // Ignore the "replacing" half of an app update; the matching
+            // ACTION_PACKAGE_ADDED / ACTION_PACKAGE_REMOVED arrives separately.
+            if (intent?.getBooleanExtra(Intent.EXTRA_REPLACING, false) == true &&
+                intent.action == Intent.ACTION_PACKAGE_REMOVED
+            ) return
+            loadApps()
+        }
+    }
+
     init {
         loadApps()
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addDataScheme("package")
+        }
+        context.registerReceiver(packageChangeReceiver, filter)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        runCatching { context.unregisterReceiver(packageChangeReceiver) }
     }
 
     fun onAppClicked(app: AppInfo) {

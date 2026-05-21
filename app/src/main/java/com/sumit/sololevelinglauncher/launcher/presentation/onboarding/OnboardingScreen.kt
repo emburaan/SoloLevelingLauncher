@@ -19,6 +19,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -247,26 +251,32 @@ fun OnboardingScreen(onComplete: () -> Unit) {
 @Composable
 private fun OnboardingPage(page: OnboardingPage) {
     val context = LocalContext.current
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = OnboardingDefaults.PageHorizontalPadding),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        IllustrationTile(icon = page.icon)
-        Spacer(modifier = Modifier.height(OnboardingDefaults.IllustrationToTitleSpacing))
-        Text(
-            text = stringRes(context, page.titleRes),
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(OnboardingDefaults.TitleToBulletsSpacing))
-        page.bulletRes.forEach { bullet ->
-            BulletRow(text = stringRes(context, bullet))
-            Spacer(modifier = Modifier.height(OnboardingDefaults.BulletRowSpacing))
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                // Centre the content when it fits, scroll it when it doesn't,
+                // so long bullet text is never clipped on small screens.
+                .heightIn(min = maxHeight)
+                .padding(horizontal = OnboardingDefaults.PageHorizontalPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            IllustrationTile(icon = page.icon)
+            Spacer(modifier = Modifier.height(OnboardingDefaults.IllustrationToTitleSpacing))
+            Text(
+                text = stringRes(context, page.titleRes),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(OnboardingDefaults.TitleToBulletsSpacing))
+            page.bulletRes.forEach { bullet ->
+                BulletRow(text = stringRes(context, bullet))
+                Spacer(modifier = Modifier.height(OnboardingDefaults.BulletRowSpacing))
+            }
         }
     }
 }
@@ -491,7 +501,8 @@ private fun buildPages(context: Context): List<OnboardingPage> {
             bulletRes = listOf(
                 R.string.onboarding_launcher_b1,
                 R.string.onboarding_launcher_b2,
-                R.string.onboarding_launcher_b3
+                R.string.onboarding_launcher_b3,
+                R.string.onboarding_launcher_b4
             ),
             actionLabelRes = R.string.onboarding_launcher_action,
             icon = Icons.Outlined.Home,

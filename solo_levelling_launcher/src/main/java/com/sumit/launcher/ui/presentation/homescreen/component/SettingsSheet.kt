@@ -6,6 +6,8 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,10 +66,12 @@ fun SettingsSheet(
         )
     ) {
         Column(
-            modifier = Modifier.padding(
-                horizontal = dimensionResource(R.dimen.spacing_5xl),
-                vertical = dimensionResource(R.dimen.spacing_md)
-            )
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    horizontal = dimensionResource(R.dimen.spacing_5xl),
+                    vertical = dimensionResource(R.dimen.spacing_md)
+                )
         ) {
             Text(
                 text = stringResource(R.string.settings_title),
@@ -127,7 +131,13 @@ fun SettingsSheet(
     }
 
     if (showAdultBlocker) {
-        AdultBlockerDialog(onDismiss = { showAdultBlocker = false })
+        AdultBlockerDialog(
+            onDismiss = { showAdultBlocker = false },
+            onOpenSettings = {
+                showAdultBlocker = false
+                onDismiss()
+            }
+        )
     }
 }
 
