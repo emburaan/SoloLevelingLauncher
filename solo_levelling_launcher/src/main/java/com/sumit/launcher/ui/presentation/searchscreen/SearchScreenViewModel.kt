@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sumit.launcher.data.focus.AppFocusState
+import com.sumit.launcher.data.focus.BlockedApps
 import com.sumit.launcher.domain.focus.ObserveAppFocusStateUseCase
 import com.sumit.launcher.domain.focus.UpdateAppFocusUseCase
 import com.sumit.launcher.domain.launch.DecideAppLaunchUseCase
@@ -121,6 +122,7 @@ class SearchScreenViewModel @Inject constructor(
                 .mapNotNull { resolveInfo ->
                     val packageName = resolveInfo.activityInfo.packageName
                     if (packageName == ownPackage) return@mapNotNull null
+                    if (packageName in BlockedApps.PACKAGES) return@mapNotNull null
                     val label = resolveInfo.loadLabel(packageManager).toString()
                     val icon = resolveInfo.loadIcon(packageManager)
                     AppInfo(

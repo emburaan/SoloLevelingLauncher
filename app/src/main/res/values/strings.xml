@@ -72,4 +72,7 @@
     <string name="onboarding_launcher_b3">A minimal screen built for focus</string>
     <string name="onboarding_launcher_b4">On some phones (Xiaomi, Samsung, Oppo, Vivo), also enable Autostart for this app in Settings so it stays your home screen after a reboot</string>
     <string name="onboarding_launcher_action">Set as default</string>
+
+    <string name="blocked_app_service_label">Block distracting apps</string>
+    <string name="blocked_app_service_description">Sends you back to the home screen when a blocked app (YouTube, Instagram, X, Reddit) opens, or when a blocked adult-site domain appears in a supported browser\'s address bar.</string>
 </resources>
