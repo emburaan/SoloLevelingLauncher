@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.sumit.launcher.service.FocusCheckService
 import com.sumit.sololevelinglauncher.launcher.presentation.main.component.MainActivityCompose
-import com.sumit.sololevelinglauncher.ui.theme.SoloLevelingLauncherTheme
+import com.sumit.launcher.ui.theme.SoloLevelingLauncherTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

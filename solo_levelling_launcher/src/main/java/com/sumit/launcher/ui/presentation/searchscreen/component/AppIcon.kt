@@ -14,17 +14,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import com.sumit.launcher.R
 import com.sumit.launcher.ui.model.AppInfo
-import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
+import com.sumit.launcher.ui.theme.neumorphicSurface
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -40,7 +37,6 @@ fun AppIcon(
             .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val bitmap = remember(app.icon) { app.icon.toBitmap(96, 96).asImageBitmap() }
         Box(
             modifier = Modifier
                 .size(dimensionResource(R.dimen.app_icon_container))
@@ -52,7 +48,7 @@ fun AppIcon(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                bitmap = bitmap,
+                bitmap = app.icon,
                 contentDescription = app.label,
                 modifier = Modifier
                     .size(dimensionResource(R.dimen.app_icon))

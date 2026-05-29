@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.sumit.launcher.R
 import com.sumit.launcher.data.usage.TodayScreenStats
-import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
+import com.sumit.launcher.ui.theme.neumorphicSurface
 
 @Composable
 fun PickupCounter(

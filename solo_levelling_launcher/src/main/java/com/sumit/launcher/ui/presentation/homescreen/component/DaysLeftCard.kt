@@ -19,7 +19,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.sumit.launcher.R
-import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
+import com.sumit.launcher.ui.theme.neumorphicSurface
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import java.util.Calendar

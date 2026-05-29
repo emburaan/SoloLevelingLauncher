@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Mirrors com.sumit.sololevelinglauncher.ui.theme so the alarm ring screen reads as the
+// Mirrors com.sumit.launcher.ui.theme so the alarm ring screen reads as the
 // same app even though the clock library can't depend on the launcher module.
 internal val AlarmAccentPurple = Color(0xFF6C63FF)
 internal val AlarmAccentBlue = Color(0xFF42A5F5)

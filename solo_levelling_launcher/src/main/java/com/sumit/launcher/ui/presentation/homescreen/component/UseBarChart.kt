@@ -22,9 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sumit.launcher.R
 import com.sumit.launcher.data.usage.DayUsage
-import com.sumit.sololevelinglauncher.ui.theme.SLAccentBlue
-import com.sumit.sololevelinglauncher.ui.theme.SLAccentPurple
-import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
+import com.sumit.launcher.ui.theme.SLAccentBlue
+import com.sumit.launcher.ui.theme.SLAccentPurple
+import com.sumit.launcher.ui.theme.neumorphicSurface
 
 @Composable
 fun UsageBarChart(usageData: List<DayUsage>, modifier: Modifier = Modifier) {

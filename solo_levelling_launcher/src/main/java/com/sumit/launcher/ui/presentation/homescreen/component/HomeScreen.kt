@@ -43,9 +43,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.sumit.clock.ui.ClockSheet
 import com.sumit.launcher.R
+import com.sumit.launcher.ui.presentation.homescreen.FocusCheckViewModel
 import com.sumit.launcher.ui.presentation.homescreen.UsageUiState
 import com.sumit.launcher.ui.presentation.homescreen.UsageViewModel
-import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
+import com.sumit.launcher.ui.theme.neumorphicSurface
 import com.sumit.todo_list.presentation.component.TaskListSection
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

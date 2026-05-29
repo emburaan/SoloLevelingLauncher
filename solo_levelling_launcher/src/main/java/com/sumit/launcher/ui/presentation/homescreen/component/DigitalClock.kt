@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.sumit.launcher.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.sumit.sololevelinglauncher.ui.theme.SLAccentPurple
-import com.sumit.sololevelinglauncher.ui.theme.SLTheme
+import com.sumit.launcher.ui.theme.SLAccentPurple
+import com.sumit.launcher.ui.theme.SLTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import java.util.Calendar

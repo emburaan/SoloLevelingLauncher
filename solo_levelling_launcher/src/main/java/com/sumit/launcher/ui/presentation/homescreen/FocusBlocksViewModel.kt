@@ -1,4 +1,4 @@
-package com.sumit.launcher.ui.presentation.homescreen.component
+package com.sumit.launcher.ui.presentation.homescreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

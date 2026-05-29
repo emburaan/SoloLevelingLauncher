@@ -39,9 +39,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sumit.launcher.ui.model.AppInfo
-import com.sumit.sololevelinglauncher.ui.theme.SLAccentBlue
-import com.sumit.sololevelinglauncher.ui.theme.SLAccentPurple
-import com.sumit.sololevelinglauncher.ui.theme.neumorphicSurface
+import com.sumit.launcher.ui.theme.SLAccentBlue
+import com.sumit.launcher.ui.theme.SLAccentPurple
+import com.sumit.launcher.ui.theme.neumorphicSurface
 import kotlinx.coroutines.launch
 
 @Composable
