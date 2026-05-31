@@ -44,6 +44,7 @@ import com.sumit.launcher.ui.presentation.homescreen.SettingsSheetViewModel
 fun SettingsSheet(
     onDismiss: () -> Unit,
     onOpenFocusBlocks: () -> Unit,
+    onOpenAppLimits: () -> Unit,
     viewModel: SettingsSheetViewModel = hiltViewModel()
 ) {
     val sheetState = rememberModalBottomSheetState()
@@ -87,6 +88,15 @@ fun SettingsSheet(
                 onClick = {
                     onDismiss()
                     onOpenFocusBlocks()
+                }
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+            SettingsRow(
+                title = stringResource(R.string.settings_app_limits_title),
+                subtitle = stringResource(R.string.settings_app_limits_subtitle),
+                onClick = {
+                    onDismiss()
+                    onOpenAppLimits()
                 }
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))

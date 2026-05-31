@@ -64,6 +64,7 @@ fun HomeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val motivationalMessages = stringArrayResource(R.array.task_limit_motivational_messages)
     var showFocusBlocks by remember { mutableStateOf(false) }
+    var showAppLimits by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showClock by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -248,10 +249,15 @@ fun HomeScreen(
         FocusBlocksSheet(onDismiss = { showFocusBlocks = false })
     }
 
+    if (showAppLimits) {
+        AppLimitsSheet(onDismiss = { showAppLimits = false })
+    }
+
     if (showSettings) {
         SettingsSheet(
             onDismiss = { showSettings = false },
-            onOpenFocusBlocks = { showFocusBlocks = true }
+            onOpenFocusBlocks = { showFocusBlocks = true },
+            onOpenAppLimits = { showAppLimits = true }
         )
     }
 

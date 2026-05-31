@@ -6,34 +6,66 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.ceil
 
 data class AppFocusEntry(
     val requirePrompt: Boolean = false,
-    val dailyLimitMinutes: Int? = null
+    /** Per-day allowance in effect today, or null if there's no (active) limit. */
+    val dailyLimitMinutes: Int? = null,
+    /** Whole days the limit still applies, or null if it has no expiry. */
+    val limitDaysRemaining: Int? = null
 )
+
+/**
+ * A per-app daily time limit. [minutesPerDay] is the allowance per day; the limit
+ * stays in force until [expiresAtMillis] (a local-midnight timestamp), or forever
+ * when [expiresAtMillis] is [NO_EXPIRY].
+ */
+data class AppLimit(
+    val minutesPerDay: Int,
+    val expiresAtMillis: Long = NO_EXPIRY
+) {
+    companion object {
+        const val NO_EXPIRY = 0L
+    }
+}
 
 data class AppFocusState(
     /** Apps the user has explicitly turned on. */
     val promptPackages: Set<String> = emptySet(),
     /** Default distractors the user has explicitly turned off. */
     val disabledDefaults: Set<String> = emptySet(),
-    val dailyLimits: Map<String, Int> = emptyMap(),
+    val dailyLimits: Map<String, AppLimit> = emptyMap(),
     val focusBlocks: List<FocusBlock> = emptyList()
 ) {
-    fun entryFor(packageName: String): AppFocusEntry {
+    fun entryFor(packageName: String, now: Long = System.currentTimeMillis()): AppFocusEntry {
         val isDefault = packageName in DEFAULT_DISTRACTOR_PACKAGES
         val effective = packageName in promptPackages ||
             (isDefault && packageName !in disabledDefaults)
+
+        val limit = dailyLimits[packageName]
+        val active = limit != null &&
+            (limit.expiresAtMillis == AppLimit.NO_EXPIRY || now < limit.expiresAtMillis)
+        val daysRemaining = if (active && limit!!.expiresAtMillis != AppLimit.NO_EXPIRY) {
+            ceil((limit.expiresAtMillis - now) / DAY_MS.toDouble()).toInt().coerceAtLeast(0)
+        } else null
+
         return AppFocusEntry(
             requirePrompt = effective,
-            dailyLimitMinutes = dailyLimits[packageName]
+            dailyLimitMinutes = if (active) limit!!.minutesPerDay else null,
+            limitDaysRemaining = daysRemaining
         )
     }
 
     fun activeFocusBlock(at: Long = System.currentTimeMillis()): FocusBlock? =
         focusBlocks.firstOrNull { it.isActive(at) }
+
+    private companion object {
+        const val DAY_MS = 86_400_000L
+    }
 }
 
 @Singleton
@@ -75,16 +107,31 @@ class AppFocusRepository @Inject constructor(
         )
     }
 
-    /** Pass null to clear the daily limit for [packageName]. */
-    fun setDailyLimit(packageName: String, minutes: Int?) {
+    /**
+     * Sets a per-day limit of [minutes] for [packageName], enforced for [days] days
+     * from today (0 = no expiry / ongoing). Pass null/0 minutes to clear the limit.
+     */
+    fun setDailyLimit(packageName: String, minutes: Int?, days: Int) {
         val current = _state.value.dailyLimits
         val updated = if (minutes == null || minutes <= 0) {
             current - packageName
         } else {
-            current + (packageName to minutes)
+            current + (packageName to AppLimit(minutes, expiryFor(days)))
         }
         prefs.edit().putString(KEY_LIMITS, encodeLimits(updated)).apply()
         _state.value = _state.value.copy(dailyLimits = updated)
+    }
+
+    /** Local-midnight timestamp [days] days from now, or [AppLimit.NO_EXPIRY] when days <= 0. */
+    private fun expiryFor(days: Int): Long {
+        if (days <= 0) return AppLimit.NO_EXPIRY
+        return Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, days)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
     }
 
     fun setFocusBlocks(blocks: List<FocusBlock>) {
@@ -115,17 +162,22 @@ class AppFocusRepository @Inject constructor(
         focusBlocks = decodeBlocks(prefs.getString(KEY_FOCUS_BLOCKS, null))
     )
 
-    private fun encodeLimits(map: Map<String, Int>): String =
-        map.entries.joinToString(separator = ";") { "${it.key}=${it.value}" }
+    private fun encodeLimits(map: Map<String, AppLimit>): String =
+        map.entries.joinToString(separator = ";") {
+            "${it.key}=${it.value.minutesPerDay},${it.value.expiresAtMillis}"
+        }
 
-    private fun decodeLimits(raw: String?): Map<String, Int> {
+    private fun decodeLimits(raw: String?): Map<String, AppLimit> {
         if (raw.isNullOrBlank()) return emptyMap()
         return raw.split(';').mapNotNull { entry ->
             val idx = entry.lastIndexOf('=')
             if (idx <= 0) return@mapNotNull null
             val pkg = entry.substring(0, idx)
-            val minutes = entry.substring(idx + 1).toIntOrNull() ?: return@mapNotNull null
-            pkg to minutes
+            // Value is "minutes,expiresAtMillis"; the legacy format stored just "minutes".
+            val parts = entry.substring(idx + 1).split(',')
+            val minutes = parts[0].toIntOrNull() ?: return@mapNotNull null
+            val expiry = parts.getOrNull(1)?.toLongOrNull() ?: AppLimit.NO_EXPIRY
+            pkg to AppLimit(minutes, expiry)
         }.toMap()
     }
 

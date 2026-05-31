@@ -60,6 +60,7 @@ class SearchScreenViewModel @Inject constructor(
     }
 
     fun onAppLongPressed(app: AppInfo) {
+        if (focusState.value.entryFor(app.packageName).dailyLimitMinutes != null) return
         _effects.trySend(LaunchEffect.OpenSettings(app))
     }
 
@@ -69,8 +70,8 @@ class SearchScreenViewModel @Inject constructor(
         updateAppFocus.setRequirePrompt(packageName, enabled)
     }
 
-    fun setDailyLimit(packageName: String, minutes: Int?) {
-        updateAppFocus.setDailyLimit(packageName, minutes)
+    fun setDailyLimit(packageName: String, minutes: Int?, days: Int) {
+        updateAppFocus.setDailyLimit(packageName, minutes, days)
     }
 
     private fun launch(packageName: String) {

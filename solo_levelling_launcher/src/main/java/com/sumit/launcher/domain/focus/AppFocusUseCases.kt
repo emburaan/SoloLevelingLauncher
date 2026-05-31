@@ -31,8 +31,8 @@ class UpdateAppFocusUseCase @Inject constructor(
         repository.setRequirePrompt(packageName, enabled)
     }
 
-    fun setDailyLimit(packageName: String, minutes: Int?) {
-        repository.setDailyLimit(packageName, minutes)
+    fun setDailyLimit(packageName: String, minutes: Int?, days: Int) {
+        repository.setDailyLimit(packageName, minutes, days)
     }
 }
 

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -44,18 +45,19 @@ private const val MAX_DAYS = 30
 fun AppFocusSettingsSheet(
     app: AppInfo,
     entry: AppFocusEntry,
-    onSave: (requirePrompt: Boolean, dailyLimitMinutes: Int?) -> Unit,
+    onSave: (requirePrompt: Boolean, dailyLimitMinutes: Int?, days: Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var requirePrompt by remember(app.packageName) { mutableStateOf(entry.requirePrompt) }
 
-    val total = entry.dailyLimitMinutes ?: 0
-    var days by remember(app.packageName) {
-        mutableIntStateOf((total / 1440).coerceIn(0, MAX_DAYS))
-    }
+    // The per-day allowance (chip) and how many days it stays active (slider) are
+    // independent: e.g. 30 min/day for 7 days. days == 0 means no end date.
     var minutes by remember(app.packageName) {
-        mutableIntStateOf(if (days > 0) 0 else (total % 1440).coerceIn(0, 60))
+        mutableIntStateOf((entry.dailyLimitMinutes ?: 0).coerceIn(0, 60))
+    }
+    var days by remember(app.packageName) {
+        mutableIntStateOf((entry.limitDaysRemaining ?: 0).coerceIn(0, MAX_DAYS))
     }
 
     ModalBottomSheet(
@@ -67,14 +69,16 @@ fun AppFocusSettingsSheet(
             topEnd = dimensionResource(R.dimen.corner_sheet)
         )
     ) {
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = dimensionResource(R.dimen.spacing_5xl),
-                    vertical = dimensionResource(R.dimen.spacing_md)
-                )
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.spacing_5xl),
+                        vertical = dimensionResource(R.dimen.spacing_md)
+                    )
+            ) {
             Text(
                 text = app.label,
                 style = MaterialTheme.typography.titleLarge,
@@ -127,8 +131,8 @@ fun AppFocusSettingsSheet(
                 )
             ) {
                 FilterChip(
-                    selected = days == 0 && minutes == 0,
-                    onClick = { days = 0; minutes = 0 },
+                    selected = minutes == 0,
+                    onClick = { minutes = 0 },
                     label = { Text(stringResource(R.string.app_focus_chip_off)) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -137,8 +141,8 @@ fun AppFocusSettingsSheet(
                 )
                 PRESET_MINUTES.forEach { preset ->
                     FilterChip(
-                        selected = days == 0 && minutes == preset,
-                        onClick = { days = 0; minutes = preset },
+                        selected = minutes == preset,
+                        onClick = { minutes = preset },
                         label = {
                             Text(stringResource(R.string.app_focus_chip_minutes, preset))
                         },
@@ -149,49 +153,64 @@ fun AppFocusSettingsSheet(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_3xl)))
+            if (minutes > 0) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_5xl)))
+                Text(
+                    stringResource(R.string.app_focus_duration_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    stringResource(R.string.app_focus_duration_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl)))
 
+                Slider(
+                    value = days.toFloat(),
+                    onValueChange = { days = it.toInt().coerceIn(0, MAX_DAYS) },
+                    valueRange = 0f..MAX_DAYS.toFloat(),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.primary,
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        stringResource(R.string.app_focus_duration_ongoing),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        "$MAX_DAYS days",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_3xl)))
             Text(
                 text = formatLimit(days, minutes),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xs)))
-
-            Slider(
-                value = days.toFloat(),
-                onValueChange = {
-                    val snapped = it.toInt().coerceIn(0, MAX_DAYS)
-                    days = snapped
-                    if (snapped > 0) minutes = 0
-                },
-                valueRange = 0f..MAX_DAYS.toFloat(),
-                modifier = Modifier.fillMaxWidth(),
-                colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.primary,
-                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    "0 days",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    "$MAX_DAYS days",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_3xl)))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.spacing_5xl),
+                        vertical = dimensionResource(R.dimen.spacing_md)
+                    )
+                    .navigationBarsPadding(),
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = onDismiss) {
@@ -199,27 +218,22 @@ fun AppFocusSettingsSheet(
                 }
                 TextButton(
                     onClick = {
-                        val totalMinutes = days * 1440 + minutes
-                        onSave(requirePrompt, totalMinutes.takeIf { it > 0 })
+                        onSave(requirePrompt, minutes.takeIf { it > 0 }, days)
                     }
                 ) { Text(stringResource(R.string.action_save)) }
             }
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_md)))
         }
     }
 }
 
 @Composable
 private fun formatLimit(days: Int, minutes: Int): String {
-    if (days == 0 && minutes == 0) return stringResource(R.string.app_focus_limit_off)
-    val parts = mutableListOf<String>()
-    if (days > 0) {
-        parts += if (days == 1) stringResource(R.string.app_focus_label_one_day)
-        else stringResource(R.string.app_focus_label_days, days)
+    if (minutes <= 0) return stringResource(R.string.app_focus_limit_off)
+    val allowance = stringResource(R.string.app_focus_limit_per_day, minutes)
+    val duration = when {
+        days <= 0 -> stringResource(R.string.app_focus_duration_ongoing)
+        days == 1 -> stringResource(R.string.app_focus_duration_one_day)
+        else -> stringResource(R.string.app_focus_duration_days, days)
     }
-    if (minutes > 0) {
-        parts += if (minutes == 60) stringResource(R.string.app_focus_label_one_hour)
-        else stringResource(R.string.app_focus_label_minutes, minutes)
-    }
-    return parts.joinToString(" ")
+    return "$allowance · $duration"
 }

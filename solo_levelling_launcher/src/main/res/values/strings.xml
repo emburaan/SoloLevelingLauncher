@@ -53,6 +53,8 @@
     <string name="settings_focus_schedule_subtitle">Set deep-work windows</string>
     <string name="settings_adult_blocker_title">Block adult sites</string>
     <string name="settings_adult_blocker_subtitle">Filter NSFW domains system-wide via Private DNS</string>
+    <string name="settings_app_limits_title">App limits</string>
+    <string name="settings_app_limits_subtitle">Edit daily time limits you\'ve set</string>
 
     <!-- Adult-content blocker (Private DNS guide) -->
     <string name="adult_blocker_dialog_title">Block adult sites</string>
@@ -85,12 +87,23 @@
     <string name="app_focus_daily_limit_title">Daily limit</string>
     <string name="app_focus_daily_limit_subtitle">Once reached, opening requires a 15-second pause.</string>
     <string name="app_focus_limit_off">No limit</string>
+    <string name="app_focus_limit_per_day">%1$d min/day</string>
+    <string name="app_focus_duration_title">Apply for</string>
+    <string name="app_focus_duration_subtitle">How many days this daily limit stays active.</string>
+    <string name="app_focus_duration_ongoing">Ongoing (no end date)</string>
+    <string name="app_focus_duration_one_day">for 1 day</string>
+    <string name="app_focus_duration_days">for %1$d days</string>
     <string name="app_focus_chip_off">Off</string>
     <string name="app_focus_chip_minutes">%1$d min</string>
     <string name="app_focus_label_one_hour">1h</string>
     <string name="app_focus_label_minutes">%1$d min</string>
     <string name="app_focus_label_one_day">1 day</string>
     <string name="app_focus_label_days">%1$d days</string>
+
+    <!-- App limits editor (settings) -->
+    <string name="app_limits_title">App limits</string>
+    <string name="app_limits_subtitle">Tap an app to change or remove its daily limit.</string>
+    <string name="app_limits_empty">No app limits set yet. Long-press an app to add one.</string>
 
     <!-- Per-app daily-limit focus check-in dialog -->
     <string name="focus_check_title">Focus check</string>

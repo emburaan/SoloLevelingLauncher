@@ -164,9 +164,9 @@ fun AppListWithSearchScreen(
         AppFocusSettingsSheet(
             app = app,
             entry = focusState.entryFor(app.packageName),
-            onSave = { requirePrompt, dailyLimitMinutes ->
+            onSave = { requirePrompt, dailyLimitMinutes, days ->
                 viewModel.setRequirePrompt(app.packageName, requirePrompt)
-                viewModel.setDailyLimit(app.packageName, dailyLimitMinutes)
+                viewModel.setDailyLimit(app.packageName, dailyLimitMinutes, days)
                 settingsApp = null
             },
             onDismiss = { settingsApp = null }
