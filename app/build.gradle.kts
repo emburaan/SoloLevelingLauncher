@@ -38,7 +38,9 @@ android {
     signingConfigs {
         create("release") {
             if (hasReleaseSigning) {
-                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                // Resolve relative to the project root so the .jks can live there
+                // (alongside keystore.properties) rather than inside app/.
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
