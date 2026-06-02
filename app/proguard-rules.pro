@@ -19,3 +19,19 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep readable stack traces in Play Console crash reports.
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
+
+# Hilt / Dagger generated code is reflection-driven; keep it intact.
+-keep class dagger.hilt.** { *; }
+-keep class **_HiltModules** { *; }
+
+# App classes are referenced by name from the manifest (Application,
+# launcher Activity, AccessibilityService, widget receivers).
+-keep class com.sumit.sololevelinglauncher.** { *; }
+
+# Glance app widgets are instantiated by the framework by name.
+-keep class * extends androidx.glance.appwidget.GlanceAppWidget { *; }
+-keep class * extends androidx.glance.appwidget.GlanceAppWidgetReceiver { *; }
