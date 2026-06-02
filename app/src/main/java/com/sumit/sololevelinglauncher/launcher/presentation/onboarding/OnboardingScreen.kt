@@ -3,6 +3,7 @@ package com.sumit.sololevelinglauncher.launcher.presentation.onboarding
 import android.Manifest
 import android.app.AlarmManager
 import android.app.role.RoleManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,6 +11,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import android.text.TextUtils
+import com.sumit.sololevelinglauncher.blocking.BlockedAppAccessibilityService
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -45,6 +48,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Insights
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -472,6 +476,27 @@ private fun buildPages(context: Context): List<OnboardingPage> {
         )
     }
 
+    if (!isAccessibilityServiceEnabled(context)) {
+        pages += OnboardingPage(
+            titleRes = R.string.onboarding_accessibility_title,
+            bulletRes = listOf(
+                R.string.onboarding_accessibility_b1,
+                R.string.onboarding_accessibility_b2,
+                R.string.onboarding_accessibility_b3,
+                R.string.onboarding_accessibility_b4
+            ),
+            actionLabelRes = R.string.onboarding_accessibility_action,
+            icon = Icons.Outlined.Shield,
+            isGranted = ::isAccessibilityServiceEnabled,
+            action = { ctx, _, _ ->
+                ctx.startActivity(
+                    Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+        )
+    }
+
     if (needsExactAlarm(context)) {
         pages += OnboardingPage(
             titleRes = R.string.onboarding_exact_alarm_title,
@@ -554,6 +579,20 @@ private fun needsExactAlarm(context: Context): Boolean {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         ?: return false
     return !alarmManager.canScheduleExactAlarms()
+}
+
+private fun isAccessibilityServiceEnabled(context: Context): Boolean {
+    val expected = ComponentName(context, BlockedAppAccessibilityService::class.java)
+    val enabledServices = Settings.Secure.getString(
+        context.contentResolver,
+        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+    ) ?: return false
+    val splitter = TextUtils.SimpleStringSplitter(':')
+    splitter.setString(enabledServices)
+    while (splitter.hasNext()) {
+        if (ComponentName.unflattenFromString(splitter.next()) == expected) return true
+    }
+    return false
 }
 
 private fun isDefaultLauncher(context: Context): Boolean {

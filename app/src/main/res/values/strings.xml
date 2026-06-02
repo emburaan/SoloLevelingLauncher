@@ -73,6 +73,13 @@
     <string name="onboarding_launcher_b4">On some phones (Xiaomi, Samsung, Oppo, Vivo), also enable Autostart for this app in Settings so it stays your home screen after a reboot</string>
     <string name="onboarding_launcher_action">Set as default</string>
 
+    <string name="onboarding_accessibility_title">Block distracting apps &amp; sites</string>
+    <string name="onboarding_accessibility_b1">Uses Android\'s Accessibility service to detect when a blocked app or website opens</string>
+    <string name="onboarding_accessibility_b2">When one opens, you\'re sent back to the home screen — that\'s the only thing it does</string>
+    <string name="onboarding_accessibility_b3">It never reads your screen content, messages, or passwords</string>
+    <string name="onboarding_accessibility_b4">Everything runs on your device — nothing is collected, stored, or shared</string>
+    <string name="onboarding_accessibility_action">Enable blocking</string>
+
     <string name="blocked_app_service_label">Block distracting apps</string>
     <string name="blocked_app_service_description">Sends you back to the home screen when a blocked app (YouTube, Instagram, X, Reddit) opens, or when a blocked adult-site domain appears in a supported browser\'s address bar.</string>
 </resources>
