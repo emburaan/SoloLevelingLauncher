@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -6,6 +9,15 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
 }
 
+// Load signing config from a git-ignored keystore.properties (see keystore.properties.example).
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        load(FileInputStream(keystorePropertiesFile))
+    }
+}
+val hasReleaseSigning = keystorePropertiesFile.exists()
+
 android {
     namespace = "com.sumit.sololevelinglauncher"
     compileSdk = 35
@@ -13,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "com.sumit.sololevelinglauncher"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
         multiDexEnabled = true
@@ -23,13 +35,32 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            if (hasReleaseSigning) {
+                // Resolve relative to the project root so the .jks can live there
+                // (alongside keystore.properties) rather than inside app/.
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Only sign locally when keystore.properties is present; otherwise
+            // rely on Play App Signing / manual signing of an unsigned bundle.
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
